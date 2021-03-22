@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticker-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ticker
+  template:
+    metadata:
+      labels:
+        app: ticker
+    spec:
+      containers:
+        - name: ticker
+          image: mtuomiko/ticker:0.0.2
