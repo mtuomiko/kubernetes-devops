@@ -4,7 +4,7 @@ Ticker/hashgenerator app with deployment.yaml located in subfolder, image publis
 
 1. Delete previous deployment with `kubectl delete deployment ticker-dep`
 
-2. Apply new deployment file `kubectl apply -f manifests/deployment.yaml`
+2. Apply new deployment file `kubectl apply -f manifests/deployment.yaml` with new tag 0.0.2
 
 3. Get pods with `kubectl get pods`
 
