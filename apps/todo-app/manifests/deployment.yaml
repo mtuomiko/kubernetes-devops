@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
         - name: todo-app
-          image: mtuomiko/todo-app:0.0.3
+          image: mtuomiko/todo-app:0.0.4
