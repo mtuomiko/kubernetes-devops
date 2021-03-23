@@ -20,6 +20,6 @@ func main() {
 
 	http.HandleFunc("/", rootHandler)
 
-	log.Printf("Server started in port %s", port)
+	log.Printf("Server started on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
