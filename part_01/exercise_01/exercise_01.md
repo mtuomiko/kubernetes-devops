@@ -1,6 +1,6 @@
 ## Part 1 exercise 1
 
-Ticker/hashgenerator app located in subfolder, published through Docker Hub at [mtuomiko/ticker](https://hub.docker.com/repository/docker/mtuomiko/ticker)
+Ticker app located in [/apps/ticker](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/ticker) at commit https://github.com/mtuomiko/kubernetes-devops/commit/8c41f8f7d13dd933c71b68e7f695d06f4b734b76. Published through Docker Hub at [mtuomiko/ticker](https://hub.docker.com/r/mtuomiko/ticker)
 
 1. Create a cluster with `k3d cluster create -a 1` (one agent node)
 

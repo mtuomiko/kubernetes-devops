@@ -1,6 +1,6 @@
 ## Part 1 exercise 4
 
-Todo-app with deployment.yaml located in subfolder, published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/todo-app)
+Todo-app located in [/apps/todo-app](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/todo-app) at commit https://github.com/mtuomiko/kubernetes-devops/commit/417144de042100cf87e3e192f4e4ec5563f7d9ec. Published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/todo-app) with tags `0.0.2` and `0.0.3`
 
 1. Delete previous deployment with `kubectl delete deployment todo-app-dep`
 

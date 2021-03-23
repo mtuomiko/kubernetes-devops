@@ -1,6 +1,6 @@
 ## Part 1 exercise 3
 
-Ticker/hashgenerator app with deployment.yaml located in subfolder, image published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/ticker)
+Ticker app located in [/apps/ticker](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/ticker) at commit https://github.com/mtuomiko/kubernetes-devops/commit/3a20bdad68ceb96f107bd312ddba7e51c0dd8d4f. Published through Docker Hub at [mtuomiko/ticker](https://hub.docker.com/r/mtuomiko/ticker) with tag `0.0.2`
 
 1. Delete previous deployment with `kubectl delete deployment ticker-dep`
 

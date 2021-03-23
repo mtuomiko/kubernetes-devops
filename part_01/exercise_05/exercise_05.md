@@ -1,6 +1,6 @@
 ## Part 1 exercise 5
 
-Todo-app with deployment.yaml located in subfolder, published through Docker Hub at [mtuomiko/todo-app:0.0.4](https://hub.docker.com/layers/mtuomiko/todo-app/0.0.4/images/sha256-dd3acb6688ee8258e8f8334d2b80e1e0f1138555c4793dbbab5ba9570ea85c3b?context=explore)
+Todo-app located in [/apps/todo-app](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/todo-app) at commit https://github.com/mtuomiko/kubernetes-devops/commit/8d2442cf9d8781a92c0e322d3ffba512adefa98e. Published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/todo-app) with tag `0.0.4`
 
 1. Apply new deployment file `kubectl apply -f manifests/deployment.yaml` with tag 0.0.4
 

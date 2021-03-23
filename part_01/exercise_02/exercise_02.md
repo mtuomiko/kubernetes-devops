@@ -1,6 +1,6 @@
 ## Part 1 exercise 2
 
-Todo-app located in subfolder, published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/todo-app)
+Todo-app located in [/apps/todo-app](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/todo-app) at commit https://github.com/mtuomiko/kubernetes-devops/commit/409693fdf52297423c4181d4cb5eebf03f635ae0. Published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/todo-app)
 
 1. Create a deployment with `kubectl create deployment todo-app-dep --image=mtuomiko/todo-app`
 
