@@ -1,6 +1,6 @@
 ## Part 1 exercise 7
 
-Ticker app located in [/apps/ticker](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/ticker) at commit **placeholder**. Published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/todo-app) with tag `0.0.3`
+Ticker app located in [/apps/ticker](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/ticker) at commit https://github.com/mtuomiko/kubernetes-devops/commit/560de140170868dc8864288ea1c96791919b5c85. Published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/todo-app) with tag `0.0.3`
 
 Our previous cluster should work fine since we already port routing to port 80 at the load balancer.
 
