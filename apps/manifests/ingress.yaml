@@ -22,3 +22,10 @@ spec:
               name: pingpong-svc
               port:
                 number: 5501
+        - path: /status
+          pathType: Prefix
+          backend:
+            service:
+              name: ticker-svc
+              port:
+                number: 2345
