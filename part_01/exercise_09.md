@@ -1,6 +1,6 @@
 ## Part 1 exercise 9
 
-Todo-app located in [/apps/pingpong](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/pingpong) at commit **placeholder**. Published through Docker Hub at [mtuomiko/pingpong](https://hub.docker.com/r/mtuomiko/pingpong) with tag `0.0.1`
+Todo-app located in [/apps/pingpong](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/pingpong) at commit https://github.com/mtuomiko/kubernetes-devops/commit/b5b11a7373d80e11b70de7e20040431c65c80b9f. Published through Docker Hub at [mtuomiko/pingpong](https://hub.docker.com/r/mtuomiko/pingpong) with tag `0.0.1`
 
 1. Create deployment for pingpong `kubectl apply -f manifests/deployment.yaml`
 
