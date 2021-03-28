@@ -10,4 +10,5 @@ FROM scratch
 WORKDIR /app
 COPY --from=build /work/todo-app /app/todo-app
 COPY --from=build /work/public /app/public
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 ENTRYPOINT ["/app/todo-app"]
