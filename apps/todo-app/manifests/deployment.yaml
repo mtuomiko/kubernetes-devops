@@ -17,7 +17,7 @@ spec:
           emptyDir: {}
       containers:
         - name: todo-app
-          image: mtuomiko/todo-app:0.0.9
+          image: mtuomiko/todo-app:0.0.10
           volumeMounts:
             - mountPath: /app/shared
               name: dwk-project-volume

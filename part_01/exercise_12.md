@@ -1,6 +1,6 @@
 ## Part 1 exercise 12
 
-App located in [/apps/todo-app](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/todo-app) at commit **placeholder**. Published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/todo-app) with tag `0.0.9`.
+App located in [/apps/todo-app](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/todo-app) at commit https://github.com/mtuomiko/kubernetes-devops/commit/40418702cecdf80f7d49d5e76b08598f37c50f20. Published through Docker Hub at [mtuomiko/todo-app](https://hub.docker.com/r/mtuomiko/todo-app) with tag `0.0.9`.
 
 1. Update deployment with emptyDir volume defined `kubectl apply -f manifests/deployment.yaml`
 
