@@ -26,10 +26,10 @@ func main() {
 
 	dirPath := filepath.Join(".", "shared")
 	statusPath := filepath.Join(dirPath, "status.json")
-	countPath := filepath.Join(dirPath, "count.json")
+	countUrl := "http://pingpong-svc:5501/pingpongs"
 
 	http.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
-		handleStatus(w, r, statusPath, countPath)
+		handleStatus(w, r, statusPath, countUrl)
 	})
 
 	log.Printf("Status server started in port %s", port)
@@ -40,11 +40,11 @@ func handleStatus(
 	w http.ResponseWriter,
 	r *http.Request,
 	statusPath string,
-	countPath string,
+	countUrl string,
 ) {
 	if r.Method == "GET" {
 		status := readStatus(statusPath)
-		count := readCount(countPath)
+		count := readCount(countUrl)
 		w.Write([]byte(status + "\n" + "Ping / Pongs: " + strconv.Itoa(count) + "\n"))
 	} else {
 		http.NotFound(w, r)
@@ -62,11 +62,20 @@ func readStatus(path string) string {
 }
 
 func readCount(path string) int {
-	statusJson, err := os.ReadFile(path)
+	res, err := http.Get(path)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return 0
 	}
+	if res.StatusCode <= 199 || res.StatusCode >= 400 {
+		log.Println("Get failed. Resulted in status: " + res.Status)
+		return 0
+	}
+
 	var count Count
-	json.Unmarshal(statusJson, &count)
+	if err := json.NewDecoder(res.Body).Decode(&count); err != nil {
+		log.Println(err)
+		return 0
+	}
 	return count.Count
 }

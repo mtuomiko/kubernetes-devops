@@ -22,7 +22,7 @@ func main() {
 		port = portEnv
 	}
 
-	dirPath := filepath.Join(".", "shared")
+	dirPath := filepath.Join(".", "cache")
 	path := filepath.Join(dirPath, "count.json")
 
 	counter := 0
@@ -37,6 +37,9 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handlePing(w, r, &counter, path)
+	})
+	http.HandleFunc("/pingpongs", func(w http.ResponseWriter, r *http.Request) {
+		handleCount(w, r, counter)
 	})
 
 	log.Printf("Pingpong server started in port %s", port)
@@ -65,5 +68,23 @@ func saveCount(count int, path string) {
 	err = ioutil.WriteFile(path, countJson, os.ModePerm)
 	if err != nil {
 		log.Println(err)
+	}
+}
+
+func handleCount(w http.ResponseWriter, r *http.Request, count int) {
+	if r.Method == "GET" && r.URL.Path == "/pingpongs" {
+		countStruct := Count{
+			Count: count,
+		}
+		countJson, err := json.Marshal(countStruct)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(countJson)
+	} else {
+		http.NotFound(w, r)
 	}
 }
