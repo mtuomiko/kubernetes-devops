@@ -26,7 +26,7 @@ func main() {
 
 	dirPath := filepath.Join(".", "shared")
 	statusPath := filepath.Join(dirPath, "status.json")
-	countUrl := "http://pingpong-svc:5501/pingpongs"
+	countUrl := "http://pingpong-svc.exercises:5501/pingpongs"
 
 	http.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
 		handleStatus(w, r, statusPath, countUrl)

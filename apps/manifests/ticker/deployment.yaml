@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ticker-dep
+  namespace: exercises
 spec:
   replicas: 1
   selector:
@@ -23,7 +24,7 @@ spec:
             - mountPath: /app/shared
               name: shared-data
         - name: ticker-server
-          image: mtuomiko/ticker-server:0.0.3
+          image: mtuomiko/ticker-server:0.0.4
           volumeMounts:
             - mountPath: /app/shared
               name: shared-data
