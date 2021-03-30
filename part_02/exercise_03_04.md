@@ -1,6 +1,6 @@
 ## Part 2 exercises 3 & 4
 
-Apps located located in [/apps](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps) at commit **placeholder**. Published through Docker Hub yada yada etc.
+Apps located located in [/apps](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps) at commit https://github.com/mtuomiko/kubernetes-devops/commit/e11c914141757566e748cda48fd1b5c08d7e414e. Published through Docker Hub yada yada etc.
 
 1. Namespaces created: `project` for the project and `exercises` for everything else. Everything is now defined in the corresponding namespace: persistent volume and claim for the ticker, deployments, services etc. 
 

@@ -24,7 +24,13 @@ spec:
             - mountPath: /app/shared
               name: shared-data
         - name: ticker-server
-          image: mtuomiko/ticker-server:0.0.4
+          image: mtuomiko/ticker-server:0.0.5
           volumeMounts:
             - mountPath: /app/shared
               name: shared-data
+          env:
+            - name: GREETING
+              valueFrom:
+                configMapKeyRef:
+                  name: dwk-exercises-configmap
+                  key: MESSAGE

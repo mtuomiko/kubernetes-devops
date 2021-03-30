@@ -23,13 +23,17 @@ func main() {
 	if portEnv, ok := os.LookupEnv("PORT"); ok {
 		port = portEnv
 	}
+	greeting := ""
+	if greetingEnv, ok := os.LookupEnv("GREETING"); ok {
+		greeting = greetingEnv
+	}
 
 	dirPath := filepath.Join(".", "shared")
 	statusPath := filepath.Join(dirPath, "status.json")
 	countUrl := "http://pingpong-svc.exercises:5501/pingpongs"
 
 	http.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
-		handleStatus(w, r, statusPath, countUrl)
+		handleStatus(w, r, statusPath, countUrl, greeting)
 	})
 
 	log.Printf("Status server started in port %s", port)
@@ -41,11 +45,12 @@ func handleStatus(
 	r *http.Request,
 	statusPath string,
 	countUrl string,
+	greeting string,
 ) {
 	if r.Method == "GET" {
 		status := readStatus(statusPath)
 		count := readCount(countUrl)
-		w.Write([]byte(status + "\n" + "Ping / Pongs: " + strconv.Itoa(count) + "\n"))
+		w.Write([]byte(greeting + "\n" + status + "\n" + "Ping / Pongs: " + strconv.Itoa(count) + "\n"))
 	} else {
 		http.NotFound(w, r)
 	}
