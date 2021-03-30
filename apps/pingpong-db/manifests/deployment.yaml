@@ -1,21 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pingpong-dep
+  name: pingpong-db-dep
   namespace: exercises
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: pingpong
+      app: pingpong-db
   template:
     metadata:
       labels:
-        app: pingpong
+        app: pingpong-db
     spec:
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: pingpong-db-claim
       containers:
-        - name: pingpong
-          image: mtuomiko/pingpong:0.0.4
+        - name: pingpong-db
+          image: postgres:alpine
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: db-storage
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
