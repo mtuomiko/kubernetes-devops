@@ -18,7 +18,12 @@ spec:
           emptyDir: {}
       containers:
         - name: todo-app-backend
-          image: mtuomiko/todo-app-backend:0.0.3
+          image: mtuomiko/todo-app-backend:0.0.4
           volumeMounts:
             - mountPath: /app/data
               name: dwk-backend-volume
+          envFrom:
+            - configMapRef:
+                name: dwk-project-configmap
+            - secretRef:
+                name: project-secret

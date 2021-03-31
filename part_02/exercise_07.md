@@ -1,6 +1,6 @@
 ## Part 2 exercise 7
 
-Apps located located in [/apps](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps) at commit **placeholder**. `pingpong` is published through Docker Hub at [mtuomiko/pingpong](https://hub.docker.com/r/mtuomiko/pingpong) with tag `0.0.4`.
+Apps located located in [/apps](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps) at commit https://github.com/mtuomiko/kubernetes-devops/commit/5361d61ee11c838dda2f2b7dec188bbe94da5709. `pingpong` is published through Docker Hub at [mtuomiko/pingpong](https://hub.docker.com/r/mtuomiko/pingpong) with tag `0.0.4`.
 
 Secret `DB_PASSWORD` is inserted into `sealedsecret_exercises.yaml` which is, after decrypting inside the cluster, then used by `pingpong` and `pingpong-db` deployments. 
 

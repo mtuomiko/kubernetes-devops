@@ -1,0 +1,14 @@
+apiVersion: v1 # Includes the Service for lazyness
+kind: Service
+metadata:
+  name: todo-app-db-svc
+  namespace: project
+  labels:
+    app: todo-app-db
+spec:
+  ports:
+  - port: 5432
+    name: psdb
+  clusterIP: None
+  selector:
+    app: todo-app-db
