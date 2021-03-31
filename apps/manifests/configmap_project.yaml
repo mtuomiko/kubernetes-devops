@@ -8,3 +8,4 @@ data:
   POSTGRES_PORT: "5432" # not used by postgres, only by backend
   POSTGRES_USER: "postgres"
   POSTGRES_DB: "postgres"
+  TODO_BACKEND_URL: "http://todo-app-backend-svc.project:5100/todos" # used by todo-generator
