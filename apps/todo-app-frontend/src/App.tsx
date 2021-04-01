@@ -21,7 +21,7 @@ const App = () => {
       setTodos(todos.concat(returnedTodo))
       setTodoTitle("")
     } catch (e) {
-      console.log(e)
+      console.log(e?.response?.data?.message)
     }
   }
 
@@ -33,8 +33,9 @@ const App = () => {
         <input
           value={todoTitle}
           onChange={(event) => {
-            setTodoTitle(event.target.value)
+            setTodoTitle(event.target.value.slice(0, event.target.maxLength))
           }}
+          maxLength={140}
         />
         <button type="submit">Add Todo</button>
       </form>

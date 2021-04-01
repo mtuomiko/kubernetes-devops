@@ -15,4 +15,4 @@ spec:
     spec:
       containers:
         - name: todo-app-frontend
-          image: mtuomiko/todo-app-frontend:0.0.1
+          image: mtuomiko/todo-app-frontend:0.0.3

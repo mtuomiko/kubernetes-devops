@@ -35,7 +35,7 @@ type Image struct {
 
 type Todo struct {
 	ID    int    `json:"id"`
-	Title string `json:"title" validate:"required"`
+	Title string `json:"title" validate:"required,max=140"`
 }
 
 var (
@@ -97,7 +97,6 @@ func main() {
 }
 
 func readImageFetchTime() time.Time {
-	log.Println(cfg)
 	_, err := os.Open(cfg.ImagePath)
 	if err != nil {
 		return time.Time{}
@@ -187,12 +186,14 @@ func createTodoHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	if err := validate.Struct(newTodo); err != nil {
+		log.Println("todo_validation_error: title: \"" + newTodo.Title + "\" " + err.Error())
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	// Everything should now be OK with the payload, failure after this is a DB problem?
 	if err := insertTodo(newTodo); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
+	log.Println("todo_added: title: \"" + newTodo.Title + "\"")
 	return c.JSON(http.StatusCreated, newTodo)
 }
 
@@ -234,7 +235,6 @@ func getAllTodos() ([]Todo, error) {
 }
 
 func insertTodo(todo *Todo) error {
-	//newTodo := &Todo{Title: title}
 	_, err := pgdb.Model(todo).Returning("id").Insert()
 	if err != nil {
 		return err
