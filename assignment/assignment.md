@@ -9,7 +9,7 @@ App and manifests located located in [/assignment](https://github.com/mtuomiko/k
 5. We need to change the `prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues` setting to `false` to allow Prometheus the find our PodMonitor (since it's not labeled with the same release tag). `helm upgrade -n prometheus kube-prometheus-stack-1617221463 prometheus-community/kube-prometheus-stack --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false`
 6. We finally can query e.g. the `cat_view_counter` in Prometheus.
 7. Add Grafana dashboard with the metrics using rate() over a 3 minute period (e.g. `rate(cat_view_counter[3m])`)
-![Dashboard](/grafana.png)
+![Dashboard](/assignment/grafana.png)
 
 #### Other stuff
 
