@@ -3,11 +3,12 @@ kind: Service
 metadata:
   name: pingpong-db-svc
   namespace: exercises
+  labels:
+    app: pingpong-db
 spec:
-  type: ClusterIP
   selector:
     app: pingpong-db
   ports:
     - port: 5432
-      protocol: TCP
-      targetPort: 5432
+      name: psdb
+  clusterIP: None
