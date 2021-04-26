@@ -1,6 +1,6 @@
 ## Part 3 exercise 1
 
-Apps and manifests located in [/apps/](https://github.com/mtuomiko/kubernetes-devops/tree/main/apps/) and at branch **placeholder**.
+Apps and manifests located in [/apps/](https://github.com/mtuomiko/kubernetes-devops/tree/ex_03-01/apps) and at branch [ex_03-01](https://github.com/mtuomiko/kubernetes-devops/tree/ex_03-01).
 
 We're going to need:
 - a Deployment for the actual `pingpong` application and a StatefulSet for `pingpong-db` (this was was previously done with a Deployment but we'll switch over to a StatefulSet just for fun 😺)
@@ -12,7 +12,7 @@ Steps
 
 1. Recreate the sealed secret for our cluster `kubeseal -o yaml < secret_exercises.yaml > sealedsecret_exercises_gke.yaml`
 
-2. Install Sealed Secrets to the cluster in `kube-system` namespace. Then apply our new sealed secret with the DB password (/apps/manifests/sealedsecret_exercises_gke.yaml)
+2. Install Sealed Secrets to the cluster in `kube-system` namespace. Then apply our new sealed secret with the DB password (`/apps/manifests/sealedsecret_exercises_gke.yaml`)
 
 3. Create `pingpong-db` StatefulSet and Service. We needed the instructed `subPath` property to get the DB running. Looks like 1Gi is the minimum size for storage since our 256Mi request became such. The actual VolumeClaim was created automatically as told in the GKE instructions.
 

@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: dwk-exercises-configmap
-  namespace: exercises
-data:
-  MESSAGE: "Hello"
