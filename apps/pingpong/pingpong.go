@@ -18,11 +18,13 @@ type Count struct {
 }
 
 var (
-	host     = "pingpong-db-svc.exercises"
-	port     = 5432
-	user     = "postgres"
-	password = os.Getenv("POSTGRES_PASSWORD")
-	dbname   = "postgres"
+	host        = "pingpong-db-svc.exercises"
+	port        = 5432
+	user        = "postgres"
+	password    = os.Getenv("POSTGRES_PASSWORD")
+	dbname      = "postgres"
+	routePrefix = "/pingpong/"
+	jsonRoute   = routePrefix + "pingpongs"
 )
 
 func main() {
@@ -47,10 +49,15 @@ func main() {
 	log.Println("DB connection ok")
 	counter := readCount(db)
 
+	// Health check response
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "OK")
+	})
+
+	http.HandleFunc(routePrefix, func(w http.ResponseWriter, r *http.Request) {
 		handlePing(w, r, &counter, db)
 	})
-	http.HandleFunc("/pingpongs", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(jsonRoute, func(w http.ResponseWriter, r *http.Request) {
 		handleCount(w, r, counter)
 	})
 
@@ -59,7 +66,7 @@ func main() {
 }
 
 func handlePing(w http.ResponseWriter, r *http.Request, count *int, db *sql.DB) {
-	if r.Method == "GET" && r.URL.Path == "/" {
+	if r.Method == "GET" && r.URL.Path == routePrefix {
 		io.WriteString(w, "pong "+strconv.Itoa(*count)+"\n")
 		*count++
 		updateCount(db, *count)
@@ -69,7 +76,7 @@ func handlePing(w http.ResponseWriter, r *http.Request, count *int, db *sql.DB) 
 }
 
 func handleCount(w http.ResponseWriter, r *http.Request, count int) {
-	if r.Method == "GET" && r.URL.Path == "/pingpongs" {
+	if r.Method == "GET" && r.URL.Path == jsonRoute {
 		countStruct := Count{
 			Count: count,
 		}

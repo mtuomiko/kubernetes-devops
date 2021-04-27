@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dwk-ingress
+spec:
+  rules:
+  - http:
+      paths:
+        - path: /
+          backend:
+            serviceName: ticker-svc
+            servicePort: 4000
+        - path: /pingpong/*
+          backend:
+            serviceName: pingpong-svc
+            servicePort: 5500

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: pingpong
-          image: mtuomiko/pingpong:0.0.4
+          image: mtuomiko/pingpong:0.0.8
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticker-dep
+  namespace: exercises
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ticker
+  template:
+    metadata:
+      labels:
+        app: ticker
+    spec:
+      volumes:
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: ticker-claim
+      containers:
+        - name: ticker-generator
+          image: mtuomiko/ticker-generator:0.0.1
+          volumeMounts:
+            - mountPath: /app/shared
+              name: shared-data
+        - name: ticker-server
+          image: mtuomiko/ticker-server:0.0.7
+          volumeMounts:
+            - mountPath: /app/shared
+              name: shared-data
+          env:
+            - name: GREETING
+              valueFrom:
+                configMapKeyRef:
+                  name: dwk-exercises-configmap
+                  key: MESSAGE
