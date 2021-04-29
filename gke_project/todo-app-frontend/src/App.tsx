@@ -27,7 +27,7 @@ const App = () => {
 
   return (
     <div>
-      <h3>Todo app</h3>
+      <h3>Todo app 🤯</h3>
       <img src={BACKEND_URL + '/image.jpg'} />
       <form onSubmit={addTodo}>
         <input
