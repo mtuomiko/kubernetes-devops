@@ -9,14 +9,10 @@ spec:
           - path: /
             pathType: Exact
             backend:
-              service:
-                name: todo-app-frontend-svc
-                port:
-                  number: 5000
+              serviceName: todo-app-frontend-svc
+              servicePort: 5000
           - path: /api
             pathType: Prefix
             backend:
-              service:
-                name: todo-app-backend-svc
-                port:
-                  number: 5600
+              serviceName: todo-app-backend-svc
+              servicePort: 5600
