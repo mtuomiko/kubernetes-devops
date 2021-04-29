@@ -1,0 +1,94 @@
+name: Release application
+
+on:
+  push:
+    paths:
+      - "gke_project/**"
+
+env:
+  GKE_CLUSTER: dwk-cluster
+  GKE_ZONE: europe-north1-c
+
+jobs:
+  deployment_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+    # Initialize
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+    - name: Configure Docker for Google Container Registry
+      run: gcloud --quiet auth configure-docker
+    - name: Configure kubectl for access to cluster
+      run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
+    # Create filters for changes in corresponding dir 
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          backend_changed:
+            - 'todo-app-backend/**'
+          frontend_changed:
+            - 'todo-app-frontend/**'
+          generator_changed:
+            - 'todo-generator/**'
+
+    # Create prefix and tag for possible builds.
+    # Prefix example: gcr.io/some-project-456789/
+    # Tag example: main-ffac537e6cbbf934b08745a378932722df287a53
+    - name: Add image prefix and tag to env vars
+      run: |
+        echo "IMAGE_PREFIX=gcr.io/${{ secrets.GKE_PROJECT }}/" >> $GITHUB_ENV
+        echo "IMAGE_TAG=${GITHUB_REF#refs/heads/}-$GITHUB_SHA" >> $GITHUB_ENV
+
+    # Example gcr.io/some-project-456789/todo-foobar:main-ffac537e6cbbf934b08745a378932722df287a53
+    - name: Add complete image and tag names
+      run: |
+        echo "BACKEND_IMAGE=${IMAGE_PREFIX}todo-app-backend:${IMAGE_TAG}" >> $GITHUB_ENV
+        echo "FRONTEND_IMAGE=${IMAGE_PREFIX}todo-app-frontend:${IMAGE_TAG}" >> $GITHUB_ENV
+        echo "GENERATOR_IMAGE=${IMAGE_PREFIX}todo-generator:${IMAGE_TAG}" >> $GITHUB_ENV
+
+    # Backend
+    - name: Build backend
+      if: steps.filter.outputs.backend_changed == 'true'
+      run: docker build -t "$BACKEND_IMAGE" todo-app-backend/
+    - name: Push backend
+      if: steps.filter.outputs.backend_changed == 'true'
+      run: docker push "$BACKEND_IMAGE"
+
+    # Frontend
+    - name: Build frontend
+      if: steps.filter.outputs.frontend_changed == 'true'
+      run: docker build -t "$FRONTEND_IMAGE" todo-app-frontend/
+    - name: Push frontend
+      if: steps.filter.outputs.frontend_changed == 'true'
+      run: docker push "$FRONTEND_IMAGE"
+
+    # Generator
+    - name: Build generator
+      if: steps.filter.outputs.generator_changed == 'true'
+      run: docker build -t "$GENERATOR_IMAGE" todo-generator/
+    - name: Push generator
+      if: steps.filter.outputs.generator_changed == 'true'
+      run: docker push "$GENERATOR_IMAGE"
+
+    - name: Set up Kustomize
+      run: |
+        curl -sfLO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv4.1.2/kustomize_v4.1.2_linux_amd64.tar.gz
+        tar -zxvf kustomize_v4.1.2_linux_amd64.tar.gz
+        chmod u+x ./kustomize
+
+    - name: Deploy
+      run: |
+        ./kustomize edit set image PROJECT/BACKEND_IMAGE=$BACKEND_IMAGE
+        ./kustomize edit set image PROJECT/FRONTEND_IMAGE=$FRONTEND_IMAGE
+        ./kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
+        kubectl apply -k .
+        kubectl rollout status deployment $BACKEND_IMAGE
+        kubectl rollout status deployment $FRONTEND_IMAGE
+        kubectl rollout status statefulset todo-app-db-ss
