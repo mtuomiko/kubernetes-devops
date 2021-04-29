@@ -3,8 +3,10 @@ kind: Service
 metadata:
   name: todo-app-frontend-svc
   namespace: project
+  labels:
+    app: todo-app-frontend
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: todo-app-frontend
   ports:
