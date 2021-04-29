@@ -1,5 +1,7 @@
 ## Part 3 exercise 3
 
-GKE project files located in [/gke_project](https://github.com/mtuomiko/kubernetes-devops/tree/main/gke_project)
+GKE project files located in [/gke_project](https://github.com/mtuomiko/kubernetes-devops/tree/main/gke_project). Workflow located in [gke_project.yaml](https://github.com/mtuomiko/kubernetes-devops/blob/main/.github/workflows/gke_project.yaml).
 
 The workflow assumes that the cluster is already setup with the SealedSecrets controller, `project` namespace exists and that the `sealedsecret.yaml` file corresponds to the cluster.
+
+I wanted to build and push images only when necessary so I used (dorny/paths-filter)[https://github.com/dorny/paths-filter] Action to check for changes in subdirectories. This however presented the problem where all image names (frontend, backend, generator) would be updated by kustomize even if the corresponding image was never built (since there were no changes to that subdirectory). And not setting the new image names for kustomize isn't an option either since then they would retain their non-working placeholder values. This issue (probably?) wouldn't affect functionality since Kubernetes should keep the previous version running as the new version doesn't exist. I ended up splitting the kustomization to multiple files which are applied by the workflow conditionally.

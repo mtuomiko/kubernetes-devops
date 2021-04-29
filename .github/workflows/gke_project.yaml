@@ -47,7 +47,7 @@ jobs:
         echo "IMAGE_PREFIX=gcr.io/${{ secrets.GKE_PROJECT }}/" >> $GITHUB_ENV
         echo "IMAGE_TAG=${GITHUB_REF#refs/heads/}-$GITHUB_SHA" >> $GITHUB_ENV
 
-    # Example gcr.io/some-project-456789/todo-foobar:main-ffac537e6cbbf934b08745a378932722df287a53
+    # Example gcr.io/some-project-456789/foobar-app:main-ffac537e6cbbf934b08745a378932722df287a53
     - name: Add complete image and tag names
       run: |
         echo "BACKEND_IMAGE=${IMAGE_PREFIX}todo-app-backend:${IMAGE_TAG}" >> $GITHUB_ENV
@@ -84,13 +84,30 @@ jobs:
         tar -zxvf kustomize_v4.1.2_linux_amd64.tar.gz
         chmod u+x ./kustomize
 
-    - name: Deploy
+    - name: Deploy general items
       run: |
-        cd gke_project
+        kubectl apply -k gke_project/
+        kubectl -n project rollout status statefulset todo-app-db-ss
+
+    - name: Deploy backend
+      #if: steps.filter.outputs.backend_changed == 'true'
+      run: |
+        cd gke_project/todo-app-backend/manifests
         ../kustomize edit set image PROJECT/BACKEND_IMAGE=$BACKEND_IMAGE
-        ../kustomize edit set image PROJECT/FRONTEND_IMAGE=$FRONTEND_IMAGE
-        ../kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
         kubectl apply -k .
         kubectl -n project rollout status deployment todo-app-backend-dep
+
+    - name: Deploy frontend
+      #if: steps.filter.outputs.frontend_changed == 'true'
+      run: |
+        cd gke_project/todo-app-frontend/manifests
+        ../kustomize edit set image PROJECT/FRONTEND_IMAGE=$FRONTEND_IMAGE
+        kubectl apply -k .
         kubectl -n project rollout status deployment todo-app-frontend-dep
-        kubectl -n project rollout status statefulset todo-app-db-ss
+
+    - name: Deploy generator
+      #if: steps.filter.outputs.frontend_changed == 'true'
+      run: |
+        cd gke_project/todo-generator/manifests
+        ../kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
+        kubectl apply -k .
