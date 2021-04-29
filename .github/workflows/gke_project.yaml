@@ -106,7 +106,7 @@ jobs:
         kubectl -n project rollout status deployment todo-app-frontend-dep
 
     - name: Deploy generator
-      if: steps.filter.outputs.frontend_changed == 'true'
+      if: steps.filter.outputs.generator_changed == 'true'
       run: |
         cd gke_project/todo-generator/manifests
         ../../../kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
