@@ -93,7 +93,7 @@ jobs:
       #if: steps.filter.outputs.backend_changed == 'true'
       run: |
         cd gke_project/todo-app-backend/manifests
-        ../kustomize edit set image PROJECT/BACKEND_IMAGE=$BACKEND_IMAGE
+        ../../../kustomize edit set image PROJECT/BACKEND_IMAGE=$BACKEND_IMAGE
         kubectl apply -k .
         kubectl -n project rollout status deployment todo-app-backend-dep
 
@@ -101,7 +101,7 @@ jobs:
       #if: steps.filter.outputs.frontend_changed == 'true'
       run: |
         cd gke_project/todo-app-frontend/manifests
-        ../kustomize edit set image PROJECT/FRONTEND_IMAGE=$FRONTEND_IMAGE
+        ../../../kustomize edit set image PROJECT/FRONTEND_IMAGE=$FRONTEND_IMAGE
         kubectl apply -k .
         kubectl -n project rollout status deployment todo-app-frontend-dep
 
@@ -109,5 +109,5 @@ jobs:
       #if: steps.filter.outputs.frontend_changed == 'true'
       run: |
         cd gke_project/todo-generator/manifests
-        ../kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
+        ../../../kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
         kubectl apply -k .
