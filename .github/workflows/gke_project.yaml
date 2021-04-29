@@ -91,6 +91,6 @@ jobs:
         ../kustomize edit set image PROJECT/FRONTEND_IMAGE=$FRONTEND_IMAGE
         ../kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
         kubectl apply -k .
-        kubectl rollout status deployment $BACKEND_IMAGE
-        kubectl rollout status deployment $FRONTEND_IMAGE
-        kubectl rollout status statefulset todo-app-db-ss
+        kubectl -n project rollout status deployment todo-app-backend-dep
+        kubectl -n project rollout status deployment todo-app-frontend-dep
+        kubectl -n project rollout status statefulset todo-app-db-ss
