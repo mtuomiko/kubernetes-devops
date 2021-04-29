@@ -59,7 +59,7 @@ jobs:
       if: steps.filter.outputs.backend_changed == 'true'
       run: docker build -t "$BACKEND_IMAGE" gke_project/todo-app-backend/
     - name: Push backend
-      #if: steps.filter.outputs.backend_changed == 'true'
+      if: steps.filter.outputs.backend_changed == 'true'
       run: docker push "$BACKEND_IMAGE"
 
     # Frontend
@@ -67,7 +67,7 @@ jobs:
       if: steps.filter.outputs.frontend_changed == 'true'
       run: docker build -t "$FRONTEND_IMAGE" gke_project/todo-app-frontend/
     - name: Push frontend
-      #if: steps.filter.outputs.frontend_changed == 'true'
+      if: steps.filter.outputs.frontend_changed == 'true'
       run: docker push "$FRONTEND_IMAGE"
 
     # Generator
