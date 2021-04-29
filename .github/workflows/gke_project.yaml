@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "gke_project/**"
+      - ".github/workflows/gke_project.yaml"
 
 env:
   GKE_CLUSTER: dwk-cluster
