@@ -56,7 +56,7 @@ jobs:
 
     # Backend
     - name: Build backend
-      #if: steps.filter.outputs.backend_changed == 'true'
+      if: steps.filter.outputs.backend_changed == 'true'
       run: docker build -t "$BACKEND_IMAGE" gke_project/todo-app-backend/
     - name: Push backend
       #if: steps.filter.outputs.backend_changed == 'true'
@@ -64,7 +64,7 @@ jobs:
 
     # Frontend
     - name: Build frontend
-      #if: steps.filter.outputs.frontend_changed == 'true'
+      if: steps.filter.outputs.frontend_changed == 'true'
       run: docker build -t "$FRONTEND_IMAGE" gke_project/todo-app-frontend/
     - name: Push frontend
       #if: steps.filter.outputs.frontend_changed == 'true'
@@ -72,10 +72,10 @@ jobs:
 
     # Generator
     - name: Build generator
-      #if: steps.filter.outputs.generator_changed == 'true'
+      if: steps.filter.outputs.generator_changed == 'true'
       run: docker build -t "$GENERATOR_IMAGE" gke_project/todo-generator/
     - name: Push generator
-      #if: steps.filter.outputs.generator_changed == 'true'
+      if: steps.filter.outputs.generator_changed == 'true'
       run: docker push "$GENERATOR_IMAGE"
 
     - name: Set up Kustomize
@@ -90,7 +90,7 @@ jobs:
         kubectl -n project rollout status statefulset todo-app-db-ss
 
     - name: Deploy backend
-      #if: steps.filter.outputs.backend_changed == 'true'
+      if: steps.filter.outputs.backend_changed == 'true'
       run: |
         cd gke_project/todo-app-backend/manifests
         ../../../kustomize edit set image PROJECT/BACKEND_IMAGE=$BACKEND_IMAGE
@@ -98,7 +98,7 @@ jobs:
         kubectl -n project rollout status deployment todo-app-backend-dep
 
     - name: Deploy frontend
-      #if: steps.filter.outputs.frontend_changed == 'true'
+      if: steps.filter.outputs.frontend_changed == 'true'
       run: |
         cd gke_project/todo-app-frontend/manifests
         ../../../kustomize edit set image PROJECT/FRONTEND_IMAGE=$FRONTEND_IMAGE
@@ -106,7 +106,7 @@ jobs:
         kubectl -n project rollout status deployment todo-app-frontend-dep
 
     - name: Deploy generator
-      #if: steps.filter.outputs.frontend_changed == 'true'
+      if: steps.filter.outputs.frontend_changed == 'true'
       run: |
         cd gke_project/todo-generator/manifests
         ../../../kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
