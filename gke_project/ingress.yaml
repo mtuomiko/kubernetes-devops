@@ -7,13 +7,15 @@ spec:
   rules:
     - http:
         paths:
-          - path: /
-            pathType: Exact
+          - path: /*
             backend:
               serviceName: todo-app-frontend-svc
               servicePort: 5000
           - path: /api
-            pathType: Prefix
+            backend:
+              serviceName: todo-app-backend-svc
+              servicePort: 5600
+          - path: /api/*
             backend:
               serviceName: todo-app-backend-svc
               servicePort: 5600
