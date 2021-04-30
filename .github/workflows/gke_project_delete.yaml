@@ -46,9 +46,9 @@ jobs:
           --repository=${REPOSITORY} \
           --filter="name:/todo-" \
           --format="get(name)"); do
-          for digest in $(gcloud container images list-tags '$name' \
+          for digest in $(gcloud container images list-tags $name \
             --filter="tags:${BRANCH_NAME}-" \
             --format="get(digest)"); do
-              gcloud container images delete '$name@$digest' --force-delete-tags --quiet
+              gcloud container images delete $name@$digest --force-delete-tags --quiet
           done
         done
