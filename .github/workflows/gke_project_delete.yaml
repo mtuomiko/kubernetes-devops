@@ -27,7 +27,7 @@ jobs:
     - name: Delete all resources
       run: kubectl delete all --all -n ${{ github.event.ref }}
     - name: Delete namespace
-      run: kubectl delete namespace ${{ github.event.ref }}
+      run: kubectl delete namespace ${{ github.event.ref }} || true
 
     # Create repository and branch name vars for GCR image deletion
     # Repository example: gcr.io/some-project-456789
