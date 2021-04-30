@@ -4,8 +4,8 @@ metadata:
   name: dwk-project-configmap
   namespace: project
 data:
-  POSTGRES_HOST: "todo-app-db-svc.project"
+  POSTGRES_HOST: "todo-app-db-svc"
   POSTGRES_PORT: "5432" # not used by postgres, only by backend
   POSTGRES_USER: "postgres"
   POSTGRES_DB: "postgres"
-  TODO_BACKEND_URL: "http://todo-app-backend-svc.project:5600/api/todos" # used by todo-generator
+  TODO_BACKEND_URL: "http://todo-app-backend-svc:5600/api/todos" # used by todo-generator
