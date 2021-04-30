@@ -21,8 +21,30 @@ jobs:
     - name: Configure kubectl for access to cluster
       run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
-    # Delete
+    # Delete from cluster
     - name: Delete all resources
       run: kubectl delete all --all -n ${{ github.event.ref }}
     - name: Delete namespace
       run: kubectl delete namespace ${{ github.event.ref }}
+
+    # Create repository and branch name vars for GCR image deletion
+    # Repository example: gcr.io/some-project-456789
+    - name: Add repository and branch name to env vars
+      run: |
+        echo "REPOSITORY=gcr.io/${{ secrets.GKE_PROJECT }}" >> $GITHUB_ENV
+        echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+
+    # Delete images from Google Container Registry
+    - name: Delete images
+      run: |
+        for name in $(gcloud container images list \
+          --repository=$REPOSITORY \
+          --filter="name:/todo-" \
+          --format="get(name)"); do
+          for digest in $(gcloud container images list-tags '$name' \
+            --filter="tags:feat-new-5-" \
+            --format="get(digest)"); do
+              gcloud container images delete '$name@$digest' --force-delete-tags --quiet
+          done
+        done
