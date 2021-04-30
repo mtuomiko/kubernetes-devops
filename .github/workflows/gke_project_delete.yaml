@@ -34,16 +34,18 @@ jobs:
         echo "REPOSITORY=gcr.io/${{ secrets.GKE_PROJECT }}" >> $GITHUB_ENV
         echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
-
     # Delete images from Google Container Registry
+    # DANGER! HUOM! OBS! This ins't safe to use since branch name filter might 
+    # match other branches as well. For example filter "new-feature-" for branch
+    # "new-feature" will match also images for branch "new-feature-plus".  
     - name: Delete images
       run: |
         for name in $(gcloud container images list \
-          --repository=$REPOSITORY \
+          --repository=${REPOSITORY} \
           --filter="name:/todo-" \
           --format="get(name)"); do
           for digest in $(gcloud container images list-tags '$name' \
-            --filter="tags:feat-new-5-" \
+            --filter="tags:${BRANCH_NAME}-" \
             --format="get(digest)"); do
               gcloud container images delete '$name@$digest' --force-delete-tags --quiet
           done
