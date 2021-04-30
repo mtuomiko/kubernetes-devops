@@ -2,4 +2,4 @@
 
 Workflow located in [gke_project_delete.yaml](https://github.com/mtuomiko/kubernetes-devops/blob/main/.github/workflows/gke_project_delete.yaml) at the main branch as required by the GitHub Action delete event trigger.
 
-Workflow removes all resources and the actual namespace.
+Workflow removes all resources and the actual namespace. Google Container Registry image deletion is handled however I don't think I chose the most sensible approach. Firstly the deletion of images isn't safe because it could match images from other branches as well. For example images in branch `test` will have tags like `test-3591f0da...` and currently the deletion script will filter found tags based on the presence of `test-` which would also match image tags for branch `test-dev` or even branch `feature-test-new`. Secondly the deletion script is bash script but it's declared straight in the workflow YAML file which gets very convoluted since there are variable substitutions going on from both the GitHub environment and also from the script itself. Creating the script in its own file might have been more easily understandable. We'll leave improvements for another day.
