@@ -1,0 +1,28 @@
+name: Delete deployment environment
+
+on:
+  delete
+
+env:
+  GKE_CLUSTER: dwk-cluster
+  GKE_ZONE: europe-north1-c
+
+jobs:
+  deployment_removal:
+    if: github.event.ref_type == 'branch' # Don't run on tag deletion (only for branch)
+    runs-on: ubuntu-latest
+    steps:
+    # Initialize
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+    - name: Configure kubectl for access to cluster
+      run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
+    # Delete
+    - name: Delete all resources
+      run: kubectl delete all --all -n ${{ github.event.ref }}
+    - name: Delete namespace
+      run: kubectl delete namespace ${{ github.event.ref }}
