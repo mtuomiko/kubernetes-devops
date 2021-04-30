@@ -34,7 +34,7 @@ jobs:
     - name: Add repository and branch name to env vars
       run: |
         echo "REPOSITORY=gcr.io/${{ secrets.GKE_PROJECT }}" >> $GITHUB_ENV
-        echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+        echo "BRANCH_NAME=${{ github.event.ref }}" >> $GITHUB_ENV
 
     # Delete images from Google Container Registry
     # DANGER! HUOM! OBS! This isn't safe to use since branch name filter might 
