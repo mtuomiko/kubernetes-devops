@@ -12,6 +12,8 @@ env:
 
 jobs:
   deployment_pipeline:
+    # Don't run if no deployment tag specified
+    if: ${{ !contains(join(github.event.commits.*.message), '#no_deployment') }}
     runs-on: ubuntu-latest
     steps:
     # Initialize
@@ -58,9 +60,8 @@ jobs:
     - name: Check force deployment tag
       if: ${{ contains(join(github.event.commits.*.message), '#force_deployment') }}
       run: echo "FORCE_DEPLOY=true" >> $GITHUB_ENV
-    # - name: Check negative force tag
-    #   if: ${{ !contains(join(github.event.commits.*.message), '#force_deployment') }}
-    #   run: echo "FORCE_DEPLOY=false" >> $GITHUB_ENV
+
+    # Check for 
 
     # Backend
     - name: Build backend
@@ -88,34 +89,45 @@ jobs:
 
     - name: Set up Kustomize
       run: |
+        cd gke_project/
         curl -sfLO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv4.1.2/kustomize_v4.1.2_linux_amd64.tar.gz
         tar -zxvf kustomize_v4.1.2_linux_amd64.tar.gz
         chmod u+x ./kustomize
 
+    - name: Handle namespace
+      run: |
+        kubectl create namespace ${GITHUB_REF#refs/heads/} || true
+        kubectl config set-context --current --namespace=${GITHUB_REF#refs/heads/}
+
     - name: Deploy general items
       run: |
-        kubectl apply -k gke_project/
-        kubectl -n project rollout status statefulset todo-app-db-ss
+        cd gke_project/
+        ./kustomize edit set namespace ${GITHUB_REF#refs/heads/}
+        kubectl apply -k .
+        kubectl rollout status statefulset todo-app-db-ss
 
     - name: Deploy backend
       if: steps.filter.outputs.backend_changed == 'true' || env.FORCE_DEPLOY == 'true'
       run: |
         cd gke_project/todo-app-backend/manifests
-        ../../../kustomize edit set image PROJECT/BACKEND_IMAGE=$BACKEND_IMAGE
+        ../../kustomize edit set namespace ${GITHUB_REF#refs/heads/}
+        ../../kustomize edit set image PROJECT/BACKEND_IMAGE=$BACKEND_IMAGE
         kubectl apply -k .
-        kubectl -n project rollout status deployment todo-app-backend-dep
+        kubectl rollout status deployment todo-app-backend-dep
 
     - name: Deploy frontend
       if: steps.filter.outputs.frontend_changed == 'true' || env.FORCE_DEPLOY == 'true'
       run: |
         cd gke_project/todo-app-frontend/manifests
-        ../../../kustomize edit set image PROJECT/FRONTEND_IMAGE=$FRONTEND_IMAGE
+        ../../kustomize edit set namespace ${GITHUB_REF#refs/heads/}
+        ../../kustomize edit set image PROJECT/FRONTEND_IMAGE=$FRONTEND_IMAGE
         kubectl apply -k .
-        kubectl -n project rollout status deployment todo-app-frontend-dep
+        kubectl rollout status deployment todo-app-frontend-dep
 
     - name: Deploy generator
       if: steps.filter.outputs.generator_changed == 'true' || env.FORCE_DEPLOY == 'true'
       run: |
         cd gke_project/todo-generator/manifests
-        ../../../kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
+        ../../kustomize edit set namespace ${GITHUB_REF#refs/heads/}
+        ../../kustomize edit set image PROJECT/GENERATOR_IMAGE=$GENERATOR_IMAGE
         kubectl apply -k .
