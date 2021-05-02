@@ -6,6 +6,7 @@ on:
 env:
   GKE_CLUSTER: dwk-cluster
   GKE_ZONE: europe-north1-c
+  GCR_HOSTNAME: eu.gcr.io
 
 jobs:
   deployment_removal:
@@ -28,10 +29,10 @@ jobs:
       run: kubectl delete namespace ${{ github.event.ref }} || true
 
     # Create repository and branch name vars for GCR image deletion
-    # Repository example: gcr.io/some-project-456789
+    # Repository example: eu.gcr.io/some-project-456789
     - name: Add repository and branch name to env vars
       run: |
-        echo "REPOSITORY=gcr.io/${{ secrets.GKE_PROJECT }}" >> $GITHUB_ENV
+        echo "REPOSITORY=${GCR_HOSTNAME}/${{ secrets.GKE_PROJECT }}" >> $GITHUB_ENV
         echo "BRANCH_NAME=${{ github.event.ref }}" >> $GITHUB_ENV
 
     # Delete images from Google Container Registry

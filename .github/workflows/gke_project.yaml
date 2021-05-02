@@ -9,6 +9,7 @@ on:
 env:
   GKE_CLUSTER: dwk-cluster
   GKE_ZONE: europe-north1-c
+  GCR_HOSTNAME: eu.gcr.io
 
 jobs:
   deployment_pipeline:
@@ -42,14 +43,14 @@ jobs:
             - 'gke_project/todo-generator/**'
 
     # Create prefix and tag for possible builds.
-    # Prefix example: gcr.io/some-project-456789/
+    # Prefix example: eu.gcr.io/some-project-456789/
     # Tag example: main-ffac537e6cbbf934b08745a378932722df287a53
     - name: Add image prefix and tag to env vars
       run: |
-        echo "IMAGE_PREFIX=gcr.io/${{ secrets.GKE_PROJECT }}/" >> $GITHUB_ENV
+        echo "IMAGE_PREFIX=${GCR_HOSTNAME}/${{ secrets.GKE_PROJECT }}/" >> $GITHUB_ENV
         echo "IMAGE_TAG=${GITHUB_REF#refs/heads/}-$GITHUB_SHA" >> $GITHUB_ENV
 
-    # Example gcr.io/some-project-456789/foobar-app:main-ffac537e6cbbf934b08745a378932722df287a53
+    # Example eu.gcr.io/some-project-456789/foobar-app:main-ffac537e6cbbf934b08745a378932722df287a53
     - name: Add complete image and tag names
       run: |
         echo "BACKEND_IMAGE=${IMAGE_PREFIX}todo-app-backend:${IMAGE_TAG}" >> $GITHUB_ENV
