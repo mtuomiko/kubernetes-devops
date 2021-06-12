@@ -29,5 +29,5 @@ spec:
                 name: project-secret
           resources:
             limits:
-              cpu: "800m"
+              cpu: "500m"
               memory: "512Mi"
