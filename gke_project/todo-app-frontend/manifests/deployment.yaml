@@ -18,5 +18,5 @@ spec:
           image: PROJECT/FRONTEND_IMAGE
           resources:
             limits:
-              cpu: "250m"
+              cpu: "500m"
               memory: "128Mi"
