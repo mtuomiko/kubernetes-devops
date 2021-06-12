@@ -29,6 +29,10 @@ spec:
                 name: dwk-project-configmap
             - secretRef:
                 name: project-secret
+          resources:
+            limits:
+              cpu: "2000m"
+              memory: "1024Mi"
   volumeClaimTemplates:
     - metadata:
         name: db-storage

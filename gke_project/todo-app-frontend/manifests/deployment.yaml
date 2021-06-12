@@ -16,3 +16,7 @@ spec:
       containers:
         - name: todo-app-frontend
           image: PROJECT/FRONTEND_IMAGE
+          resources:
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
