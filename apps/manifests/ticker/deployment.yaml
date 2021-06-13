@@ -23,6 +23,13 @@ spec:
           volumeMounts:
             - mountPath: /app/shared
               name: shared-data
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "32Mi"
+            limits:
+              cpu: "150m"
+              memory: "128Mi"
         - name: ticker-server
           image: mtuomiko/ticker-server:0.0.7
           volumeMounts:
@@ -34,3 +41,20 @@ spec:
                 configMapKeyRef:
                   name: dwk-exercises-configmap
                   key: MESSAGE
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "32Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - ticker
+              topologyKey: kubernetes.io/hostname
