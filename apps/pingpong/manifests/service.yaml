@@ -4,10 +4,10 @@ metadata:
   name: pingpong-svc
   namespace: exercises
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: pingpong
   ports:
-    - port: 5501
+    - port: 5500
       protocol: TCP
       targetPort: 5500

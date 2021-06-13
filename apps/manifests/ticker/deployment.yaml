@@ -16,7 +16,7 @@ spec:
       volumes:
         - name: shared-data
           persistentVolumeClaim:
-            claimName: dwk-storage-claim
+            claimName: ticker-claim
       containers:
         - name: ticker-generator
           image: mtuomiko/ticker-generator:0.0.1
@@ -24,7 +24,7 @@ spec:
             - mountPath: /app/shared
               name: shared-data
         - name: ticker-server
-          image: mtuomiko/ticker-server:0.0.5
+          image: mtuomiko/ticker-server:0.0.7
           volumeMounts:
             - mountPath: /app/shared
               name: shared-data

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pingpong-db-ss
+  namespace: exercises
+spec:
+  serviceName: pingpong-db-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pingpong-db
+  template:
+    metadata:
+      labels:
+        app: pingpong-db
+    spec:
+      containers:
+        - name: pingpong-db
+          image: postgres:alpine
+          ports:
+            - name: psdb
+              containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: db-storage
+              subPath: postgres
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: exercises-secret
+                  key: DB_PASSWORD
+  volumeClaimTemplates:
+    - metadata:
+        name: db-storage
+        namespace: exercises
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 256Mi

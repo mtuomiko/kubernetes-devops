@@ -1,38 +1,20 @@
-apiVersion: networking.k8s.io/v1
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: dwk-ingress
-  annotations:
-    traefik.ingress.kubernetes.io/rule-type: "PathPrefixStrip"
 spec:
   rules:
   - http:
       paths:
         - path: /
-          pathType: Exact
           backend:
-            service:
-              name: todo-app-frontend-svc
-              port:
-                number: 5000
-        - path: /api
-          pathType: Prefix
-          backend:
-            service:
-              name: todo-app-backend-svc
-              port:
-                number: 5100
+            serviceName: ticker-svc
+            servicePort: 4000
         - path: /pingpong
-          pathType: Prefix
           backend:
-            service:
-              name: pingpong-svc
-              port:
-                number: 5501
-        - path: /status
-          pathType: Prefix
+            serviceName: pingpong-svc
+            servicePort: 5500
+        - path: /pingpong/*
           backend:
-            service:
-              name: ticker-svc
-              port:
-                number: 2345
+            serviceName: pingpong-svc
+            servicePort: 5500
