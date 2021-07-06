@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -23,8 +24,10 @@ var (
 	user        = "postgres"
 	password    = os.Getenv("POSTGRES_PASSWORD")
 	dbname      = "postgres"
-	routePrefix = "/pingpong/"
+	routePrefix = "/"
 	jsonRoute   = routePrefix + "pingpongs"
+	db          *sql.DB
+	counter     int
 )
 
 func main() {
@@ -37,48 +40,54 @@ func main() {
 		port = portEnv
 	}
 
-	// Init DB connection
-	db, err := sql.Open("postgres", psqlConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Start connecting to db
+	go connectLoop(psqlConfig)
 	defer db.Close()
-	if err = db.Ping(); err != nil {
-		log.Fatal(err)
-	}
-	log.Println("DB connection ok")
-	counter := readCount(db)
 
 	// Health check response
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "OK")
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		if db == nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else if err := db.Ping(); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else {
+			fmt.Fprintf(w, "OK")
+		}
 	})
 
 	http.HandleFunc(routePrefix, func(w http.ResponseWriter, r *http.Request) {
-		handlePing(w, r, &counter, db)
+		if db == nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else {
+			handlePing(w, r)
+		}
 	})
 	http.HandleFunc(jsonRoute, func(w http.ResponseWriter, r *http.Request) {
-		handleCount(w, r, counter)
+		if db == nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else {
+			handleCount(w, r)
+		}
 	})
 
 	log.Printf("Pingpong server started in port %s", port)
 	http.ListenAndServe(":"+port, nil)
 }
 
-func handlePing(w http.ResponseWriter, r *http.Request, count *int, db *sql.DB) {
+func handlePing(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" && r.URL.Path == routePrefix {
-		io.WriteString(w, "pong "+strconv.Itoa(*count)+"\n")
-		*count++
-		updateCount(db, *count)
+		io.WriteString(w, "pong "+strconv.Itoa(counter)+"\n")
+		counter++
+		updateCount(db, counter)
 	} else {
 		http.NotFound(w, r)
 	}
 }
 
-func handleCount(w http.ResponseWriter, r *http.Request, count int) {
+func handleCount(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" && r.URL.Path == jsonRoute {
 		countStruct := Count{
-			Count: count,
+			Count: counter,
 		}
 		countJson, err := json.Marshal(countStruct)
 		if err != nil {
@@ -129,5 +138,35 @@ func updateCount(db *sql.DB, count int) {
 	_, err := db.Exec(updateStatement, count)
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+// https://alex.dzyoba.com/blog/go-connect-loop/
+// keep trying to connect to db
+func connectLoop(psqlConfig string) error {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+
+		case <-ticker.C:
+			log.Println("connecting to db...")
+			dbConnection, err := sql.Open("postgres", psqlConfig)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
+			if err = dbConnection.Ping(); err != nil {
+				log.Println(err)
+				continue
+			}
+
+			db = dbConnection
+			countVal := readCount(db)
+			counter = countVal
+			return nil
+		}
 	}
 }

@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: dwk-project-cpu-usage
+  namespace: project
+spec:
+  metrics:
+    - name: dwk-project-cpu-usage
+      initialDelay: 30s
+      successCondition: result < 0.007
+      provider:
+        prometheus:
+          address: http://kube-prometheus-stack-1617-prometheus.prometheus.svc.cluster.local:9090
+          query: scalar(sum(rate(container_cpu_usage_seconds_total{namespace="project"}[1m])))

@@ -15,4 +15,16 @@ spec:
     spec:
       containers:
         - name: todo-app-frontend
-          image: mtuomiko/todo-app-frontend:0.0.3
+          image: mtuomiko/todo-app-frontend:0.0.7
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+               path: /health
+               port: 80
+          livenessProbe:
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            httpGet:
+               path: /health
+               port: 80

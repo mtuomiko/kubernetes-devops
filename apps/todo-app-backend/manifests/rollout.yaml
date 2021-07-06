@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: todo-app-backend-rollout
+  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-app-backend
+  template:
+    metadata:
+      labels:
+        app: todo-app-backend
+    spec:
+      volumes:
+        - name: dwk-backend-volume
+          emptyDir: {}
+      containers:
+        - name: todo-app-backend
+          image: mtuomiko/todo-app-backend:0.0.10
+          volumeMounts:
+            - mountPath: /app/data
+              name: dwk-backend-volume
+          envFrom:
+            - configMapRef:
+                name: dwk-project-configmap
+            - secretRef:
+                name: project-secret
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /health
+              port: 5600
+          livenessProbe:
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            httpGet:
+              path: /health
+              port: 5600
+  strategy:
+    canary:
+      steps:
+        - setWeight: 50
+        - analysis:
+            templates:
+              - templateName: dwk-project-cpu-usage
+        - pause:
+            duration: 10m

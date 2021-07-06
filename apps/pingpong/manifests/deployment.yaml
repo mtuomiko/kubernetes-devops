@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: pingpong
-          image: mtuomiko/pingpong:0.0.8
+          image: mtuomiko/pingpong:0.0.11
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -29,3 +29,8 @@ spec:
             limits:
               cpu: "150m"
               memory: "128Mi"
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 60
+            httpGet:
+              port: 5500

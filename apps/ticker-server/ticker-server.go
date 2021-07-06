@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -30,10 +31,14 @@ func main() {
 
 	dirPath := filepath.Join(".", "shared")
 	statusPath := filepath.Join(dirPath, "status.json")
-	countUrl := "http://pingpong-svc.exercises:5500/pingpong/pingpongs"
+	countUrl := "http://pingpong-svc.exercises:5500/pingpongs"
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handleStatus(w, r, statusPath, countUrl, greeting)
+	})
+
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		handleHealthCheck(w, r, countUrl)
 	})
 
 	log.Printf("Status server started in port %s", port)
@@ -49,8 +54,12 @@ func handleStatus(
 ) {
 	if r.Method == "GET" {
 		status := readStatus(statusPath)
-		count := readCount(countUrl)
-		w.Write([]byte(greeting + "\n" + status + "\n" + "Ping / Pongs: " + strconv.Itoa(count) + "\n"))
+		count, err := readCount(countUrl)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else {
+			w.Write([]byte(greeting + "\n" + status + "\n" + "Ping / Pongs: " + strconv.Itoa(count) + "\n"))
+		}
 	} else {
 		http.NotFound(w, r)
 	}
@@ -66,21 +75,34 @@ func readStatus(path string) string {
 	return status.Status
 }
 
-func readCount(path string) int {
+func readCount(path string) (int, error) {
 	res, err := http.Get(path)
 	if err != nil {
 		log.Println(err)
-		return 0
+		return 0, err
 	}
 	if res.StatusCode <= 199 || res.StatusCode >= 400 {
 		log.Println("Get failed. Resulted in status: " + res.Status)
-		return 0
+		return 0, fmt.Errorf("get failed, resulted in status: %d ", res.StatusCode)
 	}
 
 	var count Count
 	if err := json.NewDecoder(res.Body).Decode(&count); err != nil {
 		log.Println(err)
-		return 0
+		return 0, err
 	}
-	return count.Count
+	return count.Count, nil
+}
+
+func handleHealthCheck(w http.ResponseWriter, r *http.Request, countUrl string) {
+	if r.Method == "GET" {
+		_, err := readCount(countUrl)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else {
+			w.Write([]byte("OK"))
+		}
+	} else {
+		http.NotFound(w, r)
+	}
 }

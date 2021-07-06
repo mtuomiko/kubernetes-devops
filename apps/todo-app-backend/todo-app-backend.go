@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/go-pg/pg/v10"
@@ -36,6 +37,7 @@ type Image struct {
 type Todo struct {
 	ID    int    `json:"id"`
 	Title string `json:"title" validate:"required,max=140"`
+	Done  bool   `json:"done"`
 }
 
 var (
@@ -66,22 +68,9 @@ func main() {
 	fetchTime := readImageFetchTime()
 	validate = validator.New()
 
-	// Initialize DB connection
-	pgdb = pg.Connect(&pg.Options{
-		Addr:     cfg.DBHost + ":" + cfg.DBPort,
-		User:     cfg.DBUser,
-		Password: cfg.DBPassword,
-		Database: cfg.DBName,
-	})
-	defer pgdb.Close()
-	if err := pgdb.Ping(ctx); err != nil {
-		log.Fatal(err)
-	}
-
-	// Verify schema and add table if needed
-	if err := initSchema(); err != nil {
-		log.Fatal(err)
-	}
+	// Start DB connection
+	go connect(cfg)
+	//defer pgdb.Close()
 
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -91,6 +80,8 @@ func main() {
 	e.File("/image.jpg", cfg.ImagePath, checkImageStatus(&fetchTime))
 	e.GET("/todos", allTodosHandler)
 	e.POST("/todos", createTodoHandler)
+	e.GET("/health", healthCheckHandler)
+	e.PUT("/todos/:id", updateTodoHandler)
 
 	log.Printf("Server started on port %s", port)
 	e.Logger.Fatal(e.Start(":" + port))
@@ -168,6 +159,16 @@ func saveImageMeta(time time.Time) {
 }
 
 // Route handlers
+func healthCheckHandler(c echo.Context) error {
+	if pgdb == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	if err := pgdb.Ping(ctx); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	return c.String(http.StatusOK, "OK")
+}
+
 func allTodosHandler(c echo.Context) error {
 	todos, err := getAllTodos()
 	if err != nil {
@@ -197,7 +198,32 @@ func createTodoHandler(c echo.Context) error {
 	return c.JSON(http.StatusCreated, newTodo)
 }
 
+func updateTodoHandler(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+
+	todoToUpdate := &Todo{}
+	if err := c.Bind(todoToUpdate); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	todoToUpdate.ID = id
+	if err := validate.Struct(todoToUpdate); err != nil {
+		log.Println("todo_validation_error: title: \"" + todoToUpdate.Title + "\" " + err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Everything should now be OK with the payload, failure after this is a DB problem?
+	if err := updateTodo(todoToUpdate); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
+	log.Println("todo_updated: title: \"" + todoToUpdate.Title + "\"")
+	return c.JSON(http.StatusCreated, todoToUpdate)
+}
+
 // DB stuff
+
 func initSchema() error {
 	// Select from non existing table should fail
 	_, err := getAllTodos()
@@ -207,7 +233,7 @@ func initSchema() error {
 		}
 		// Add default todos to an empty table
 		for _, todoTitle := range defaultTodos {
-			newTodo := &Todo{Title: todoTitle}
+			newTodo := &Todo{Title: todoTitle, Done: false}
 			if err = insertTodo(newTodo); err != nil {
 				return err
 			}
@@ -228,7 +254,7 @@ func createSchema() error {
 
 func getAllTodos() ([]Todo, error) {
 	var todos []Todo
-	if err := pgdb.Model(&todos).Select(); err != nil {
+	if err := pgdb.Model(&todos).Order("id ASC").Select(); err != nil {
 		return nil, err
 	}
 	return todos, nil
@@ -236,6 +262,14 @@ func getAllTodos() ([]Todo, error) {
 
 func insertTodo(todo *Todo) error {
 	_, err := pgdb.Model(todo).Returning("id").Insert()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func updateTodo(todo *Todo) error {
+	_, err := pgdb.Model(todo).WherePK().Update()
 	if err != nil {
 		return err
 	}
@@ -253,4 +287,32 @@ func equalDate(time1, time2 time.Time) bool {
 	y1, m1, d1 := time1.Date()
 	y2, m2, d2 := time2.Date()
 	return y1 == y2 && m1 == m2 && d1 == d2
+}
+
+func connect(cfg Config) {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+
+		case <-ticker.C:
+			log.Println("connecting to db...")
+			pgdb = pg.Connect(&pg.Options{
+				Addr:     cfg.DBHost + ":" + cfg.DBPort,
+				User:     cfg.DBUser,
+				Password: cfg.DBPassword,
+				Database: cfg.DBName,
+			})
+			if err := pgdb.Ping(ctx); err != nil {
+				log.Println(err)
+				continue
+			}
+			if err := initSchema(); err != nil {
+				log.Fatal(err)
+			}
+			log.Println("DB init ok")
+			return
+		}
+	}
 }
