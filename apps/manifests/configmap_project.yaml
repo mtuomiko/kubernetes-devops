@@ -9,3 +9,4 @@ data:
   POSTGRES_USER: "postgres"
   POSTGRES_DB: "postgres"
   TODO_BACKEND_URL: "http://todo-app-backend-svc.project:5100/todos" # used by todo-generator
+  NATS_URL: "nats://my-nats:4222"

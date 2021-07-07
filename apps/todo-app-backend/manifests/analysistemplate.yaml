@@ -7,7 +7,7 @@ spec:
   metrics:
     - name: dwk-project-cpu-usage
       initialDelay: 30s
-      successCondition: result < 0.007
+      successCondition: result < 0.01
       provider:
         prometheus:
           address: http://kube-prometheus-stack-1617-prometheus.prometheus.svc.cluster.local:9090

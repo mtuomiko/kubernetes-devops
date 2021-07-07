@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -17,6 +18,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/nats-io/nats.go"
 )
 
 type Config struct {
@@ -28,6 +30,7 @@ type Config struct {
 	DBUser        string
 	DBPassword    string
 	DBName        string
+	NatsUrl       string
 }
 
 type Image struct {
@@ -45,6 +48,7 @@ var (
 	validate     *validator.Validate
 	ctx          = context.Background()
 	pgdb         *pg.DB
+	nc           *nats.Conn
 	defaultTodos = []string{
 		"Get a haircut",
 		"Get a real job",
@@ -61,9 +65,17 @@ func main() {
 		DBUser:        getEnvOrDefault("POSTGRES_USER", "postgres"),
 		DBPassword:    os.Getenv("POSTGRES_PASSWORD"),
 		DBName:        getEnvOrDefault("POSTGRES_DB", "postgres"),
+		NatsUrl:       os.Getenv("NATS_URL"),
 	}
 	// Port fallback
 	port := getEnvOrDefault("PORT", "5600")
+
+	fmt.Printf("connecting to %s\n", cfg.NatsUrl)
+	ncConn, err := nats.Connect(cfg.NatsUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	nc = ncConn
 
 	fetchTime := readImageFetchTime()
 	validate = validator.New()
@@ -195,6 +207,14 @@ func createTodoHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 	log.Println("todo_added: title: \"" + newTodo.Title + "\"")
+
+	// Format and send to NATS
+	jsonTodo, err := json.MarshalIndent(newTodo, "", "  ")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+	nc.Publish("new_todo", []byte(jsonTodo))
+
 	return c.JSON(http.StatusCreated, newTodo)
 }
 
@@ -219,6 +239,14 @@ func updateTodoHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 	log.Println("todo_updated: title: \"" + todoToUpdate.Title + "\"")
+
+	// Format and send to NATS
+	jsonTodo, err := json.MarshalIndent(todoToUpdate, "", "  ")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest)
+	}
+	nc.Publish("updated_todo", []byte(jsonTodo))
+
 	return c.JSON(http.StatusCreated, todoToUpdate)
 }
 
