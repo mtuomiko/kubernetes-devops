@@ -6,7 +6,7 @@ metadata:
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: HelmRepository
 metadata:
-  name: prometheus
+  name: prometheus-community
   namespace: flux-system
 spec:
   interval: 1h
@@ -15,16 +15,16 @@ spec:
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: prometheus
+  name: kube-prometheus-stack
   namespace: flux-system
 spec:
   interval: 1h
   chart:
     spec:
-      chart: prometheus
+      chart: kube-prometheus-stack
       sourceRef:
         kind: HelmRepository
-        name: prometheus
+        name: prometheus-community
         namespace: flux-system
   targetNamespace: prometheus
-  releaseName: prometheus
+  releaseName: kube-prometheus-stack
