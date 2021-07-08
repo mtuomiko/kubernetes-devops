@@ -55,7 +55,7 @@ jobs:
         with:
           context: "./cluster/apps/todo-app-backend/app"
           push: true
-          tags: ${{ BACKEND_IMAGE }}
+          tags: $BACKEND_IMAGE
 
       # Frontend
       - name: Build/push frontend
@@ -64,7 +64,7 @@ jobs:
         with:
           context: "./cluster/apps/todo-app-frontend/app"
           push: true
-          tags: ${{ FRONTEND_IMAGE }}
+          tags: $FRONTEND_IMAGE
 
       # Generator
       - name: Build/push generator
@@ -73,7 +73,7 @@ jobs:
         with:
           context: "./cluster/apps/todo-generator/app"
           push: true
-          tags: ${{ GENERATOR_IMAGE }}
+          tags: $GENERATOR_IMAGE
 
       # Broadcaster
       - name: Build/push broadcaster
@@ -82,7 +82,7 @@ jobs:
         with:
           context: "./cluster/apps/todo-broadcaster/app"
           push: true
-          tags: ${{ BROADCASTER_IMAGE }}
+          tags: $BROADCASTER_IMAGE
 
       - name: Set up Kustomize
         working-directory: cluster/apps
