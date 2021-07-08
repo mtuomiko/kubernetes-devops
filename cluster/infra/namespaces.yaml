@@ -2,8 +2,3 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: exercises
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: project
