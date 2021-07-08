@@ -39,10 +39,10 @@ jobs:
       # Add image and tag names
       - name: Add complete image and tag names
         run: |
-          echo "BACKEND_IMAGE=mtuomiko/todo-app-backend:${GITHUB_SHA}" >> $GITHUB_ENV
-          echo "FRONTEND_IMAGE=mtuomiko/todo-app-frontend:${GITHUB_SHA}" >> $GITHUB_ENV
-          echo "GENERATOR_IMAGE=mtuomiko/todo-generator:${GITHUB_SHA}" >> $GITHUB_ENV
-          echo "BROADCASTER_IMAGE=mtuomiko/todo-broadcaster:${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "BACKEND_IMAGE=mtuomiko/todo-app-backend:${{ github.sha }}" >> $GITHUB_ENV
+          echo "FRONTEND_IMAGE=mtuomiko/todo-app-frontend:${{ github.sha }}" >> $GITHUB_ENV
+          echo "GENERATOR_IMAGE=mtuomiko/todo-generator:${{ github.sha }}" >> $GITHUB_ENV
+          echo "BROADCASTER_IMAGE=mtuomiko/todo-broadcaster:${{ github.sha }}" >> $GITHUB_ENV
       # Check for force build tag
       - name: Check force deployment tag
         if: ${{ contains(join(github.event.commits.*.message), '#force_build') }}
@@ -55,7 +55,7 @@ jobs:
         with:
           context: "./cluster/apps/todo-app-backend/app"
           push: true
-          tags: mtuomiko/todo-app-backend:${{ GITHUB_SHA }}
+          tags: ${BACKEND_IMAGE}
 
       # Frontend
       - name: Build/push frontend
@@ -64,7 +64,7 @@ jobs:
         with:
           context: "./cluster/apps/todo-app-frontend/app"
           push: true
-          tags: mtuomiko/todo-app-frontend:${{ GITHUB_SHA }}
+          tags: ${FRONTEND_IMAGE}
 
       # Generator
       - name: Build/push generator
@@ -73,7 +73,7 @@ jobs:
         with:
           context: "./cluster/apps/todo-generator/app"
           push: true
-          tags: mtuomiko/todo-generator:${{ GITHUB_SHA }}
+          tags: ${GENERATOR_IMAGE}
 
       # Broadcaster
       - name: Build/push broadcaster
@@ -82,7 +82,7 @@ jobs:
         with:
           context: "./cluster/apps/todo-broadcaster/app"
           push: true
-          tags: mtuomiko/todo-broadcaster:${{ GITHUB_SHA }}
+          tags: ${BROADCASTER_IMAGE}
 
       - name: Set up Kustomize
         working-directory: cluster/apps
