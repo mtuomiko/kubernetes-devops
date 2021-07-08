@@ -6,4 +6,4 @@ resources:
 images:
 - name: FRONTEND_IMAGE
   newName: mtuomiko/todo-app-frontend
-  newTag: 605cebb83be447c5b6a6523506a09fcf10a829fb
+  newTag: 75dbff46196773e138eeca068c676d38002fa3da
