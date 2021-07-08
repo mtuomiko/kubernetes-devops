@@ -1,14 +1,14 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
 metadata:
-  name: apps-step
+  name: infra-step
   namespace: flux-system
 spec:
   sourceRef:
     kind: GitRepository
     name: dwk-repo
-  path: './cluster/apps'
+  path: './cluster/infra'
   interval: 10m
   prune: true
   dependsOn:
-    - name: infra-step
+    - name: helm-step
