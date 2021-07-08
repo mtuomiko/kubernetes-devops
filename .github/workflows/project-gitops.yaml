@@ -1,0 +1,126 @@
+name: Release project
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cluster/apps/**"
+      - ".github/workflows/project-gitops.yaml"
+
+jobs:
+  app_pipeline:
+    name: Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      # Initialize
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Create filters for changes in corresponding dir
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            backend_changed:
+              - 'cluster/apps/todo-app-backend/app/**'
+            frontend_changed:
+              - 'cluster/apps/todo-app-frontend/app/**'
+            generator_changed:
+              - 'cluster/apps/todo-generator/app/**'
+            broadcaster_changed:
+              - 'cluster/apps/todo-broadcaster/app/**'
+      # Add image and tag names
+      - name: Add complete image and tag names
+        run: |
+          echo "BACKEND_IMAGE=mtuomiko/todo-app-backend:${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "FRONTEND_IMAGE=mtuomiko/todo-app-frontend:${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "GENERATOR_IMAGE=mtuomiko/todo-generator:${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "BROADCASTER_IMAGE=mtuomiko/todo-broadcaster:${GITHUB_SHA}" >> $GITHUB_ENV
+      # Check for force build tag
+      - name: Check force deployment tag
+        if: ${{ contains(join(github.event.commits.*.message), '#force_build') }}
+        run: echo "FORCE_DEPLOY=true" >> $GITHUB_ENV
+
+      # Backend
+      - name: Build/push backend
+        if: steps.filter.outputs.backend_changed == 'true' || env.FORCE_DEPLOY == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: "./cluster/apps/todo-app-backend/app"
+          push: true
+          tags: mtuomiko/todo-app-backend:${{ GITHUB_SHA }}
+
+      # Frontend
+      - name: Build/push frontend
+        if: steps.filter.outputs.frontend_changed == 'true' || env.FORCE_DEPLOY == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: "./cluster/apps/todo-app-frontend/app"
+          push: true
+          tags: mtuomiko/todo-app-frontend:${{ GITHUB_SHA }}
+
+      # Generator
+      - name: Build/push generator
+        if: steps.filter.outputs.generator_changed == 'true' || env.FORCE_DEPLOY == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: "./cluster/apps/todo-generator/app"
+          push: true
+          tags: mtuomiko/todo-generator:${{ GITHUB_SHA }}
+
+      # Broadcaster
+      - name: Build/push broadcaster
+        if: steps.filter.outputs.frontend_changed == 'true' || env.FORCE_DEPLOY == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: "./cluster/apps/todo-broadcaster/app"
+          push: true
+          tags: mtuomiko/todo-broadcaster:${{ GITHUB_SHA }}
+
+      - name: Set up Kustomize
+        working-directory: cluster/apps
+        run: |
+          curl -sfLO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv4.2.0/kustomize_v4.2.0_linux_amd64.tar.gz
+          tar -zxvf kustomize_v4.2.0_linux_amd64.tar.gz
+          chmod u+x ./kustomize
+
+      # Update YAMLs
+
+      - name: Update backend YAML
+        working-directory: cluster/apps/todo-app-backend/manifests
+        if: steps.filter.outputs.backend_changed == 'true' || env.FORCE_DEPLOY == 'true'
+        run: ../../kustomize edit set image BACKEND_IMAGE=$BACKEND_IMAGE
+
+      - name: Update frontend YAML
+        working-directory: cluster/apps/todo-app-frontend/manifests
+        if: steps.filter.outputs.frontend_changed == 'true' || env.FORCE_DEPLOY == 'true'
+        run: ../../kustomize edit set image FRONTEND_IMAGE=$FRONTEND_IMAGE
+
+      - name: Update generator YAML
+        working-directory: cluster/apps/todo-generator/manifests
+        if: steps.filter.outputs.generator_changed == 'true' || env.FORCE_DEPLOY == 'true'
+        run: ../../kustomize edit set image GENERATOR_IMAGE=$GENERATOR_IMAGE
+
+      - name: Update broadcaster YAML
+        working-directory: cluster/apps/todo-broadcaster/manifests
+        if: steps.filter.outputs.broadcaster_changed == 'true' || env.FORCE_DEPLOY == 'true'
+        run: ../../kustomize edit set image BROADCASTER_IMAGE=$BROADCASTER_IMAGE
+
+      # Commit and push
+      - name: Commit and push new YAMLs
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: 'GitOps release ${{ github.sha }}'
+          add: "[
+          'cluster/apps/todo-app-backend/manifests/kustomization.yaml', 
+          'cluster/apps/todo-app-frontend/manifests/kustomization.yaml',
+          'cluster/apps/todo-generator/manifests/kustomization.yaml',
+          'cluster/apps/todo-broadcaster/manifests/kustomization.yaml'
+          ]"
