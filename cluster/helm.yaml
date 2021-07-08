@@ -10,4 +10,9 @@ spec:
   path: './cluster/helm'
   interval: 10m
   prune: true
-  validation: none
+  validation: client
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v1beta1 
+      kind: HelmRelease
+      name: argo-rollouts
+      namespace: argo-rollouts
