@@ -11,12 +11,12 @@ spec:
   interval: 10m
   prune: true
   validation: client
-  healthChecks:
-    - apiVersion: helm.toolkit.fluxcd.io/v1beta1
-      kind: HelmRelease
-      name: argo-rollouts
-      namespace: flux-system
-    - apiVersion: helm.toolkit.fluxcd.io/v1beta1
-      kind: HelmRelease
-      name: sealed-secrets
-      namespace: flux-system
+  # healthChecks:
+  #   - apiVersion: helm.toolkit.fluxcd.io/v1beta1
+  #     kind: HelmRelease
+  #     name: argo-rollouts
+  #     namespace: flux-system
+  #   - apiVersion: helm.toolkit.fluxcd.io/v1beta1
+  #     kind: HelmRelease
+  #     name: sealed-secrets
+  #     namespace: flux-system

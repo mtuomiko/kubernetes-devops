@@ -13,8 +13,8 @@ spec:
   dependsOn:
     - name: helm-step
   validation: client
-  healthChecks:
-    - apiVersion: v1
-      kind: Secret
-      name: project-secret
-      namespace: project
+  # healthChecks:
+  #   - apiVersion: v1
+  #     kind: Secret
+  #     name: project-secret
+  #     namespace: project
