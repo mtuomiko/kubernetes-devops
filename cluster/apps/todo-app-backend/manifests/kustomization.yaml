@@ -7,4 +7,4 @@ resources:
 images:
 - name: BACKEND_IMAGE
   newName: mtuomiko/todo-app-backend
-  newTag: 2baaa4974f68654168b206341fdba46fa47b2941
+  newTag: 605cebb83be447c5b6a6523506a09fcf10a829fb
