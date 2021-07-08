@@ -7,8 +7,8 @@ metadata:
     app: todo-app-db
 spec:
   ports:
-  - port: 5432
-    name: psdb
+    - port: 5432
+      name: psdb
   clusterIP: None
   selector:
     app: todo-app-db

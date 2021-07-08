@@ -7,16 +7,16 @@ spec:
   sourceRef:
     kind: GitRepository
     name: dwk-repo
-  path: './cluster/helm'
+  path: "./cluster/helm"
   interval: 10m
   prune: true
   validation: client
   healthChecks:
-    - apiVersion: helm.toolkit.fluxcd.io/v1beta1 
+    - apiVersion: helm.toolkit.fluxcd.io/v1beta1
       kind: HelmRelease
       name: argo-rollouts
       namespace: argo-rollouts
-    - apiVersion: helm.toolkit.fluxcd.io/v1beta1 
+    - apiVersion: helm.toolkit.fluxcd.io/v1beta1
       kind: HelmRelease
       name: sealed-secrets
       namespace: flux-system

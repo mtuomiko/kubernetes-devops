@@ -20,11 +20,11 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             httpGet:
-               path: /health
-               port: 80
+              path: /health
+              port: 80
           livenessProbe:
             initialDelaySeconds: 60
             periodSeconds: 30
             httpGet:
-               path: /health
-               port: 80
+              path: /health
+              port: 80
