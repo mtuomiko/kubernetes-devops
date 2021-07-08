@@ -11,5 +11,6 @@ spec:
   interval: 10m
   prune: true
   dependsOn:
+    - name: helm-step
     - name: infra-step
   validation: client
