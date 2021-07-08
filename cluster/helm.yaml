@@ -15,4 +15,4 @@ spec:
     - apiVersion: helm.toolkit.fluxcd.io/v1beta1 
       kind: HelmRelease
       name: argo-rollouts
-      namespace: argo-rollouts
+      namespace: flux-system
