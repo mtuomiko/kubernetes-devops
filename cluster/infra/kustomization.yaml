@@ -8,3 +8,5 @@ resources:
   - namespaces.yaml
   - persistentvolume.yaml
   - persistentvolumeclaim.yaml
+  - sealedsecret_exercises.yaml
+  - sealedsecret_project.yaml
