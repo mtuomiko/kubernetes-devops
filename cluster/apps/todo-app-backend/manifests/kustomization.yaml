@@ -1,10 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - analysistemplate.yaml
-  - rollout.yaml
-  - service.yaml
+- analysistemplate.yaml
+- rollout.yaml
+- service.yaml
 images:
-  - name: BACKEND_IMAGE
-    newName: mtuomiko/todo-app-backend
-    newTag: 605cebb83be447c5b6a6523506a09fcf10a829fb
+- name: BACKEND_IMAGE
+  newName: mtuomiko/todo-app-backend
+  newTag: 7b060274fbea4455a157dc8cc9ca8dde74a38a7d
