@@ -41,7 +41,7 @@ const App = () => {
 
   return (
     <div>
-      <h3>Todo app (GitOps update, go!)</h3>
+      <h3>Todo app (GitOps updates, assemble!)</h3>
       <img src={BACKEND_URL + '/image.jpg'} />
       <form onSubmit={addTodo}>
         <input
