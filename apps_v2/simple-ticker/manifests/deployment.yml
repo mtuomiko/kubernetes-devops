@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-ticker-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-ticker
+  template:
+    metadata:
+      labels:
+        app: simple-ticker
+    spec:
+      containers:
+        - name: simple-ticker
+          image: mtuomiko/simple-ticker:0.0.1
