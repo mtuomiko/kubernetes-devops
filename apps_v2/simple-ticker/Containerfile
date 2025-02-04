@@ -1,0 +1,14 @@
+FROM golang:1.23.5-alpine as build
+
+WORKDIR /work
+COPY go.mod .
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 go build
+
+FROM scratch
+
+WORKDIR /app
+COPY --from=build /work/simple-ticker /app/simple-ticker
+ENTRYPOINT ["/app/simple-ticker"]
