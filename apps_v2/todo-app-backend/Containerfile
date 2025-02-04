@@ -2,6 +2,7 @@ FROM golang:1.23.5-alpine as build
 
 WORKDIR /work
 COPY go.mod .
+COPY go.sum .
 RUN go mod download
 
 COPY . .
@@ -11,4 +12,5 @@ FROM scratch
 
 WORKDIR /app
 COPY --from=build /work/todo-app-backend /app/todo-app-backend
+COPY --from=build /work/public /app/public
 ENTRYPOINT ["/app/todo-app-backend"]

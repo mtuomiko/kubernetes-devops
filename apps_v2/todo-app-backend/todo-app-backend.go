@@ -1,15 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"net/http"
 	"os"
-)
 
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "OK")
-}
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
 	// Port fallback
@@ -18,8 +14,9 @@ func main() {
 		port = portEnv
 	}
 
-	http.HandleFunc("/", rootHandler)
+	r := gin.Default()
+	r.Static("/", "./public")
 
-	log.Printf("Server started in port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Printf("Server starting in port %s", port)
+	r.Run(":" + port)
 }
