@@ -12,6 +12,16 @@ spec:
       labels:
         app: pingpong
     spec:
+      volumes:
+        - name: persistent-shared-dir # used by pingpong and ticker-server
+          persistentVolumeClaim:
+            claimName: dwk-storage-claim
       containers:
         - name: pingpong
-          image: mtuomiko/pingpong:0.0.1
+          image: mtuomiko/pingpong:0.0.2
+          env:
+          - name: COUNT_FILE
+            value: "/persistent-shared/count.json"
+          volumeMounts:
+          - name: persistent-shared-dir
+            mountPath: "/persistent-shared"
