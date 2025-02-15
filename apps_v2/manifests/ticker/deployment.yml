@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticker-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ticker
+  template:
+    metadata:
+      labels:
+        app: ticker
+    spec:
+      volumes:
+        - name: shared-dir
+          emptyDir: {}
+      containers:
+        - name: ticker-generator
+          image: mtuomiko/ticker-generator:0.0.1
+          volumeMounts:
+          - name: shared-dir
+            mountPath: "/shared"
+          envFrom:
+            - configMapRef:
+                name: ticker-config
+        - name: ticker-server
+          image: mtuomiko/ticker-server:0.0.1
+          volumeMounts:
+          - name: shared-dir
+            mountPath: "/shared"
+          envFrom:
+            - configMapRef:
+                name: ticker-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ticker-config
+data:
+  STATUS_FILE: "/shared/status.json"

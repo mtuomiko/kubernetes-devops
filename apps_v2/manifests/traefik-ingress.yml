@@ -10,8 +10,8 @@ spec:
     - match: PathPrefix(`/ticker`)
       kind: Rule
       services:
-        - name: simple-ticker-svc
-          port: 5000
+        - name: ticker-svc
+          port: 5002
       middlewares:
         - name: strip-ticker-service-prefix
     - match: PathPrefix(`/pingpong`)

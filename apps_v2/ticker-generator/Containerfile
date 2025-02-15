@@ -1,0 +1,15 @@
+FROM golang:1.23.5-alpine as build
+
+WORKDIR /work
+COPY go.mod .
+RUN go mod download && go mod verify
+
+COPY . .
+# CGO_ENABLED=0 to allow using from scratch images
+RUN CGO_ENABLED=0 go build
+
+FROM scratch
+
+WORKDIR /app
+COPY --from=build /work/ticker-generator /app/ticker-generator
+ENTRYPOINT ["/app/ticker-generator"]

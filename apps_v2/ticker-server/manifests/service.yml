@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ticker-server-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: ticker-server
+  ports:
+    - port: 5000
+      protocol: TCP
+      targetPort: 4000
