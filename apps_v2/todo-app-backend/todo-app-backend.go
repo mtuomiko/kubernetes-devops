@@ -15,6 +15,7 @@ func main() {
 	}
 
 	r := gin.Default()
+	r.SetTrustedProxies(nil)
 	r.Static("/", "./public")
 
 	log.Printf("Server starting in port %s", port)

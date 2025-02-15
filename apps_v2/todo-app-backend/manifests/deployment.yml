@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: todo-app-backend
-        image: mtuomiko/todo-app-backend:0.0.2
+        image: mtuomiko/todo-app-backend:0.0.3
         env:
         - name: PORT
           value: "6789"

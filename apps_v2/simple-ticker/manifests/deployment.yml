@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
         - name: simple-ticker
-          image: mtuomiko/simple-ticker:0.0.1
+          image: mtuomiko/simple-ticker:0.0.2
