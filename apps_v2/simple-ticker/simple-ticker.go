@@ -26,7 +26,7 @@ func main() {
 	interval := 5 * time.Second
 	go updateAndLogStatus(randomString, &status, interval)
 
-	http.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handleStatus(w, r, &status)
 	})
 
@@ -46,7 +46,11 @@ func updateAndLogStatus(randomString uuid.UUID, status *string, interval time.Du
 }
 
 func handleStatus(w http.ResponseWriter, r *http.Request, s *string) {
-	if r.Method == "GET" {
+	logMsg := fmt.Sprintf("%s: %s %s", time.Now().Format(time.RFC3339), r.Method, r.URL.Path)
+	log.Println(logMsg)
+	if r.Method == "GET" && r.URL.Path == "/status" {
 		w.Write([]byte(*s))
+	} else {
+		http.NotFound(w, r)
 	}
 }

@@ -1,0 +1,41 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dwk-ingressroute
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/ticker`)
+      kind: Rule
+      services:
+        - name: simple-ticker-svc
+          port: 5000
+      middlewares:
+        - name: strip-ticker-service-prefix
+    - match: PathPrefix(`/pingpong`)
+      kind: Rule
+      services:
+        - name: pingpong-svc
+          port: 5001
+      middlewares:
+        - name: strip-pingpong-service-prefix
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-pingpong-service-prefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /pingpong
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-ticker-service-prefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /ticker
