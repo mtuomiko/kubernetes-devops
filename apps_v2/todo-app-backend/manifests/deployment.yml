@@ -18,7 +18,7 @@ spec:
             claimName: dwk-storage-claim
       containers:
       - name: todo-app-backend
-        image: mtuomiko/todo-app-backend:0.0.6
+        image: mtuomiko/todo-app-backend:0.0.7
         env:
         - name: PORT
           value: "6789"
