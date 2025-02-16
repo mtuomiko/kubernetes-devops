@@ -12,9 +12,20 @@ spec:
       labels:
         app: todo-app-backend
     spec:
+      volumes:
+        - name: persistent-shared-dir # used by pingpong, ticker-server and todo-app-backend
+          persistentVolumeClaim:
+            claimName: dwk-storage-claim
       containers:
       - name: todo-app-backend
-        image: mtuomiko/todo-app-backend:0.0.3
+        image: mtuomiko/todo-app-backend:0.0.6
         env:
         - name: PORT
           value: "6789"
+        - name: IMAGE_DIR
+          value: "/persistent-shared"
+        - name: INTERVAL_SECONDS
+          value: "3600"
+        volumeMounts:
+          - name: persistent-shared-dir
+            mountPath: "/persistent-shared"

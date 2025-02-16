@@ -21,6 +21,13 @@ spec:
           port: 5001
       middlewares:
         - name: strip-pingpong-service-prefix
+    - match: PathPrefix(`/todo`)
+      kind: Rule
+      services:
+        - name: todo-app-backend-svc
+          port: 5000
+      middlewares:
+        - name: strip-todo-service-prefix
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
@@ -39,3 +46,12 @@ spec:
   stripPrefix:
     prefixes:
       - /ticker
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-todo-service-prefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /todo
