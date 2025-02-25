@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 type StatusStruct struct {
@@ -23,42 +24,44 @@ type CountStruct struct {
 	Count int `json:"count"`
 }
 
+type Config struct {
+	StatusFilePath string
+	CountUri       string
+}
+
+var cfg Config
+
+var myClient = &http.Client{Timeout: 10 * time.Second}
+
 func main() {
-	port := "4000"
-	if portEnv, ok := os.LookupEnv("PORT"); ok {
-		port = portEnv
+	port := getEnvOrDefault("PORT", "4000")
+
+	cfg := Config{
+		StatusFilePath: getEnvOrDefault("STATUS_FILE", "./status/status.json"),
+		CountUri:       getEnvOrDefault("COUNT_URI", "http://localhost:4001/count"),
 	}
 
-	statusFilePath, ok := os.LookupEnv("STATUS_FILE")
-	if !ok {
-		log.Fatal("STATUS_FILE env var not found")
-	}
-	log.Printf("Using status file path: %s", statusFilePath)
-
-	countFilePath, ok := os.LookupEnv("COUNT_FILE")
-	if !ok {
-		log.Fatal("COUNT env var not found")
-	}
-	log.Printf("Using count file path: %s", countFilePath)
+	log.Printf("Using status file path: %s", cfg.StatusFilePath)
+	log.Printf("Using count uri: %s", cfg.CountUri)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		handleStatus(w, r, statusFilePath, countFilePath)
+		handleStatus(w, r, cfg)
 	})
 
 	log.Printf("Status server starting in port %s", port)
 	http.ListenAndServe(":"+port, nil)
 }
 
-func handleStatus(w http.ResponseWriter, r *http.Request, statusFilePath string, countFilePath string) {
+func handleStatus(w http.ResponseWriter, r *http.Request, cfg Config) {
 	log.Printf("%s %s", r.Method, r.URL.Path)
 	if r.Method == "GET" && r.URL.Path == "/status" {
-		ticker := readTicker(statusFilePath)
-		count := readCount(countFilePath)
+		ticker := readTicker(cfg)
+		count := getCount(cfg)
 
 		status := &StatusStruct{
 			UUID:      ticker.UUID,
 			Timestamp: ticker.Timestamp,
-			Count:     count.Count,
+			Count:     count,
 		}
 
 		statusJson, err := json.Marshal(status)
@@ -74,8 +77,9 @@ func handleStatus(w http.ResponseWriter, r *http.Request, statusFilePath string,
 	}
 }
 
-func readTicker(path string) TickerStruct {
-	jsonData, err := os.ReadFile(path)
+func readTicker(cfg Config) TickerStruct {
+	log.Printf("Reading %s", cfg.StatusFilePath)
+	jsonData, err := os.ReadFile(cfg.StatusFilePath)
 	if err != nil {
 		log.Println(err)
 	}
@@ -85,14 +89,26 @@ func readTicker(path string) TickerStruct {
 	return ticker
 }
 
-func readCount(path string) CountStruct {
-	log.Printf("starting to read count from %s", path)
-	jsonData, err := os.ReadFile(path)
-	if err != nil {
-		log.Println(err)
-	}
+func getCount(cfg Config) int {
+	count := new(CountStruct)
+	log.Printf("Calling %s", cfg.CountUri)
+	getJson(cfg.CountUri, count)
+	return count.Count
+}
 
-	var count CountStruct
-	json.Unmarshal(jsonData, &count)
-	return count
+func getJson(url string, target interface{}) error {
+	r, err := myClient.Get(url)
+	if err != nil {
+		return err
+	}
+	defer r.Body.Close()
+
+	return json.NewDecoder(r.Body).Decode(target)
+}
+
+func getEnvOrDefault(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }

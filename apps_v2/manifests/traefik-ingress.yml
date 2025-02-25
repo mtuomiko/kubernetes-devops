@@ -24,10 +24,17 @@ spec:
     - match: PathPrefix(`/todo`)
       kind: Rule
       services:
+        - name: todo-app-frontend-svc
+          port: 5000
+      middlewares:
+        - name: strip-todo-frontend-service-prefix
+    - match: PathPrefix(`/todo/api`)
+      kind: Rule
+      services:
         - name: todo-app-backend-svc
           port: 5000
       middlewares:
-        - name: strip-todo-service-prefix
+        - name: strip-todo-backend-service-prefix
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
@@ -50,8 +57,17 @@ spec:
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: strip-todo-service-prefix
+  name: strip-todo-frontend-service-prefix
 spec:
   stripPrefix:
     prefixes:
       - /todo
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-todo-backend-service-prefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /todo/api

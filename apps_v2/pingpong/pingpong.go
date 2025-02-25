@@ -16,34 +16,40 @@ type CountStruct struct {
 }
 
 func main() {
-	port := "4000"
-	if portEnv, ok := os.LookupEnv("PORT"); ok {
-		port = portEnv
-	}
-	countFilePath, ok := os.LookupEnv("COUNT_FILE")
-	if !ok {
-		log.Fatal("COUNT_FILE env var not found")
-	}
+	port := getEnvOrDefault("PORT", "4000")
+
+	countFilePath := getEnvOrDefault("COUNT_FILE", "./count/count.json")
 	log.Printf("Using count file path: %s", countFilePath)
 
 	counter := getOrInitCount(countFilePath)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		handlePing(w, r, &counter, countFilePath)
+		handleRequests(w, r, &counter, countFilePath)
 	})
 
-	log.Printf("Pingpong server started in port %s", port)
+	log.Printf("Pingpong server starting in port %s", port)
 	http.ListenAndServe(":"+port, nil)
 }
 
-func handlePing(w http.ResponseWriter, r *http.Request, counter *int, countFilePath string) {
+func handleRequests(w http.ResponseWriter, r *http.Request, counter *int, countFilePath string) {
 	logMsg := fmt.Sprintf("%s: %s %s", time.Now().Format(time.RFC3339), r.Method, r.URL.Path)
 	log.Println(logMsg)
 
-	if r.Method == "GET" && r.URL.Path == "/ping" {
+	if r.Method != "GET" {
+		http.NotFound(w, r)
+		return
+	}
+
+	if r.URL.Path == "/ping" {
 		io.WriteString(w, "pong "+strconv.Itoa(*counter)+"\n")
 		*counter++
 		saveCount(*counter, countFilePath)
+	} else if r.URL.Path == "/count" {
+		w.Header().Set("Content-Type", "application/json")
+		countStruct := CountStruct{
+			Count: *counter,
+		}
+		json.NewEncoder(w).Encode(countStruct)
 	} else {
 		http.NotFound(w, r)
 	}
@@ -76,4 +82,11 @@ func saveCount(count int, countFilePath string) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func getEnvOrDefault(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }

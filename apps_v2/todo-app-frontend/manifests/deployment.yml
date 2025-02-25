@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app-frontend-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-app-frontend
+  template:
+    metadata:
+      labels:
+        app: todo-app-frontend
+    spec:
+      volumes:
+        - name: persistent-shared-dir # used by pingpong, ticker-server and todo-app-backend
+          persistentVolumeClaim:
+            claimName: dwk-storage-claim
+      containers:
+      - name: todo-app-frontend
+        image: mtuomiko/todo-app-frontend:0.0.3
+        env:
+        - name: PORT
+          value: "6789"
+        - name: IMAGE_DIR
+          value: "/persistent-shared"
+        - name: INTERVAL_SECONDS
+          value: "3600"
+        volumeMounts:
+          - name: persistent-shared-dir
+            mountPath: "/persistent-shared"

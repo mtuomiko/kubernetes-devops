@@ -1,0 +1,40 @@
+FROM node:22.14.0-alpine as vuebuild
+
+WORKDIR /work
+
+COPY todo-app-frontend-vue/package*.json ./
+
+RUN npm ci
+
+COPY todo-app-frontend-vue/ .
+RUN npm run build
+
+# current vue setup has an image to be used in development, exclude it from the final result
+RUN rm dist/image.jpg
+
+FROM golang:1.23.5-alpine as serverbuild
+
+WORKDIR /work
+COPY todo-app-frontend-server/go.mod .
+COPY todo-app-frontend-server/go.sum .
+RUN go mod download && go mod verify
+
+COPY todo-app-frontend-server/ .
+# CGO_ENABLED=0 to allow using from scratch images
+RUN CGO_ENABLED=0 go build
+
+RUN mkdir /empty_dir
+
+FROM scratch
+
+WORKDIR /app
+COPY --from=serverbuild /work/todo-app-frontend-server /app/todo-app-frontend-server
+COPY --from=serverbuild /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+# haxy, create empty dir for caching downloaded files if running just in Docker
+COPY --from=serverbuild /empty_dir /app/images
+
+# has the static image.jpg in there also but we circumvent those requests in the go app
+COPY --from=vuebuild /work/dist /app/public
+
+ENTRYPOINT ["/app/todo-app-frontend-server"]
