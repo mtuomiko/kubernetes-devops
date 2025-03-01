@@ -17,6 +17,9 @@ spec:
       volumes:
         - name: ephemeral-shared-dir # used by ticker-generator and ticker-server
           emptyDir: {}
+        - name: ticker-server-config-file-volume
+          configMap:
+            name: ticker-server-config-file
       containers:
         - name: ticker-generator
           image: mtuomiko/ticker-generator:0.0.1
@@ -27,16 +30,17 @@ spec:
             - configMapRef:
                 name: ticker-config
         - name: ticker-server
-          image: mtuomiko/ticker-server:0.0.3
+          image: mtuomiko/ticker-server:0.0.4
           volumeMounts:
           - name: ephemeral-shared-dir
             mountPath: "/ephemeral-shared"
-          env:
-          - name: COUNT_URI
-            value: "http://pingpong-svc:5001/count"
+          - name: ticker-server-config-file-volume
+            mountPath: /config
           envFrom:
             - configMapRef:
                 name: ticker-config
+            - configMapRef:
+                name: ticker-server-config
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -45,3 +49,23 @@ metadata:
   name: ticker-config
 data:
   STATUS_FILE: "/ephemeral-shared/status.json"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: exercises
+  name: ticker-server-config
+data:
+  COUNT_URI: "http://pingpong-svc:5001/count"
+  STATUS_FILE: "/ephemeral-shared/status.json"
+  MESSAGE: "Henlo wrld"
+  INFORMATION_FILE: "/config/information.txt"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: exercises
+  name: ticker-server-config-file
+data:
+  information.txt: |-
+    my UTF-8 text in the information.txt file

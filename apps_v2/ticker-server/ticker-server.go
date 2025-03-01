@@ -10,9 +10,11 @@ import (
 )
 
 type StatusStruct struct {
-	UUID      string `json:"uuid"`
-	Timestamp string `json:"timestamp"`
-	Count     int    `json:"pingPongCount"`
+	UUID        string `json:"uuid"`
+	Timestamp   string `json:"timestamp"`
+	Count       int    `json:"pingPongCount"`
+	Message     string `json:"message"`
+	Information string `json:"information"`
 }
 
 type TickerStruct struct {
@@ -25,11 +27,11 @@ type CountStruct struct {
 }
 
 type Config struct {
-	StatusFilePath string
-	CountUri       string
+	StatusFilePath      string
+	InformationFilePath string
+	CountUri            string
+	Message             string
 }
-
-var cfg Config
 
 var myClient = &http.Client{Timeout: 10 * time.Second}
 
@@ -37,18 +39,19 @@ func main() {
 	port := getEnvOrDefault("PORT", "4000")
 
 	cfg := Config{
-		StatusFilePath: getEnvOrDefault("STATUS_FILE", "./status/status.json"),
-		CountUri:       getEnvOrDefault("COUNT_URI", "http://localhost:4001/count"),
+		StatusFilePath:      getEnvOrDefault("STATUS_FILE", "./status/status.json"),
+		InformationFilePath: getEnvOrDefault("INFORMATION_FILE", "./config/information.txt"),
+		CountUri:            getEnvOrDefault("COUNT_URI", "http://localhost:4001/count"),
+		Message:             getEnvOrDefault("MESSAGE", "n/a"),
 	}
-
-	log.Printf("Using status file path: %s", cfg.StatusFilePath)
-	log.Printf("Using count uri: %s", cfg.CountUri)
+	cfgPrint, _ := json.MarshalIndent(cfg, "", "\t")
+	fmt.Println("Config: " + string(cfgPrint))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handleStatus(w, r, cfg)
 	})
 
-	log.Printf("Status server starting in port %s", port)
+	log.Printf("ticker-server starting in port %s", port)
 	http.ListenAndServe(":"+port, nil)
 }
 
@@ -56,12 +59,15 @@ func handleStatus(w http.ResponseWriter, r *http.Request, cfg Config) {
 	log.Printf("%s %s", r.Method, r.URL.Path)
 	if r.Method == "GET" && r.URL.Path == "/status" {
 		ticker := readTicker(cfg)
+		information := readInformation(cfg)
 		count := getCount(cfg)
 
 		status := &StatusStruct{
-			UUID:      ticker.UUID,
-			Timestamp: ticker.Timestamp,
-			Count:     count,
+			UUID:        ticker.UUID,
+			Timestamp:   ticker.Timestamp,
+			Count:       count,
+			Message:     cfg.Message,
+			Information: information,
 		}
 
 		statusJson, err := json.Marshal(status)
@@ -87,6 +93,16 @@ func readTicker(cfg Config) TickerStruct {
 	var ticker TickerStruct
 	json.Unmarshal(jsonData, &ticker)
 	return ticker
+}
+
+func readInformation(cfg Config) string {
+	information, err := os.ReadFile(cfg.InformationFilePath)
+	if err != nil {
+		log.Println(err)
+		return "n/a"
+	}
+
+	return string(information)
 }
 
 func getCount(cfg Config) int {
