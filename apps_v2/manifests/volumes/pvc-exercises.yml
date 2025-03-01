@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: exercises
+  name: dwk-exercises-storage-claim
+spec:
+  storageClassName: dwk-exercises-storage
+  volumeName: dwk-exercises-storage-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi

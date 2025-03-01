@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: dwk-storage-pv
+  name: dwk-project-storage-pv
 spec:
-  storageClassName: dwk-storage
+  storageClassName: dwk-project-storage
   capacity:
     storage: 256Mi
   volumeMode: Filesystem

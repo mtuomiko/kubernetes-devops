@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: exercises
   name: pingpong-dep
 spec:
   replicas: 1
@@ -13,9 +14,9 @@ spec:
         app: pingpong
     spec:
       volumes:
-        - name: persistent-shared-dir # used only by pingpong to keep state
+        - name: persistent-shared-dir # used by pingpong to keep state
           persistentVolumeClaim:
-            claimName: dwk-storage-claim
+            claimName: dwk-exercises-storage-claim
       containers:
         - name: pingpong
           image: mtuomiko/pingpong:0.0.3

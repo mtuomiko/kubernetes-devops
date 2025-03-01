@@ -2,6 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: exercises
   name: ticker-dep
 spec:
   replicas: 1
@@ -16,9 +17,6 @@ spec:
       volumes:
         - name: ephemeral-shared-dir # used by ticker-generator and ticker-server
           emptyDir: {}
-        # - name: persistent-shared-dir # used by pingpong and ticker-server
-        #   persistentVolumeClaim:
-        #     claimName: dwk-storage-claim
       containers:
         - name: ticker-generator
           image: mtuomiko/ticker-generator:0.0.1
@@ -33,8 +31,6 @@ spec:
           volumeMounts:
           - name: ephemeral-shared-dir
             mountPath: "/ephemeral-shared"
-          # - name: persistent-shared-dir
-          #   mountPath: "/persistent-shared"
           env:
           - name: COUNT_URI
             value: "http://pingpong-svc:5001/count"
@@ -45,7 +41,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  namespace: exercises
   name: ticker-config
 data:
   STATUS_FILE: "/ephemeral-shared/status.json"
-  # COUNT_FILE: "/persistent-shared/count.json"

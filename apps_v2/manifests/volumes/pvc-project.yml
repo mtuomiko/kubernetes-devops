@@ -1,9 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: dwk-storage-claim
+  namespace: project
+  name: dwk-project-storage-claim
 spec:
-  storageClassName: dwk-storage
+  storageClassName: dwk-project-storage
+  volumeName: dwk-project-storage-pv
   accessModes:
     - ReadWriteOnce
   resources:

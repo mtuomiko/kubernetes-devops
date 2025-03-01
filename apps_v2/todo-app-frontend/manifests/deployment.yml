@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: project
   name: todo-app-frontend-dep
 spec:
   replicas: 1
@@ -13,9 +14,9 @@ spec:
         app: todo-app-frontend
     spec:
       volumes:
-        - name: persistent-shared-dir # used by pingpong, ticker-server and todo-app-backend
+        - name: persistent-shared-dir # used by todo-app-frontend for persistent image cache
           persistentVolumeClaim:
-            claimName: dwk-storage-claim
+            claimName: dwk-project-storage-claim
       containers:
       - name: todo-app-frontend
         image: mtuomiko/todo-app-frontend:0.0.3
