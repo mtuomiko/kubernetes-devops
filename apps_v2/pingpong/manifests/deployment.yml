@@ -13,16 +13,26 @@ spec:
       labels:
         app: pingpong
     spec:
-      volumes:
-        - name: persistent-shared-dir # used by pingpong to keep state
-          persistentVolumeClaim:
-            claimName: dwk-exercises-storage-claim
       containers:
         - name: pingpong
-          image: mtuomiko/pingpong:0.0.3
+          image: mtuomiko/pingpong:0.0.4
+          envFrom:
+            - configMapRef:
+                name: pingpong-config
           env:
-          - name: COUNT_FILE
-            value: "/persistent-shared/count.json"
-          volumeMounts:
-          - name: persistent-shared-dir
-            mountPath: "/persistent-shared"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pingpong-secret
+                  key: DB_PASSWORD
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: exercises
+  name: pingpong-config
+data:
+  DB_HOST: "postgres-svc.default"
+  DB_PORT: "5432"
+  DB_USER: "postgres"
+  DB_NAME: "pingpong"
